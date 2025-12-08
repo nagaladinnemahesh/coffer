@@ -1,2 +1,9 @@
-node_modules/
+# Environment
 .env
+server/.env
+client/.env
+
+# Node
+node_modules/
+server/node_modules/
+client/node_modules/
