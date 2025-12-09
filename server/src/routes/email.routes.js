@@ -17,6 +17,34 @@ router.get("/connect", (req, res) => {
   return res.redirect(url);
 });
 
+router.get("/account", async (req, res) => {
+  try {
+    const account = await GmailAccount.findOne({ user_id: "test-user-1" });
+
+    if (!account) {
+      return res.json({ connected: false });
+    }
+
+    return res.json({
+      connected: true,
+      email: account.gmail_email,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Failed to load account" });
+  }
+});
+
+router.post("/disconnect", async (req, res) => {
+  try {
+    await GmailAccount.deleteOne({ user_id: "test-user-1" });
+    return res.json({ success: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Failed to disconnect" });
+  }
+});
+
 // handle call back --------- step 2
 
 router.get("/oauth/callback", async (req, res) => {
