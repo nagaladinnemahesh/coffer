@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { sendOAuthEmail } from "../services/email.service.js";
+import { getInbox } from "../services/gmail.service.js";
 import {
   getGoogleAuthURL,
   getTokens,
@@ -34,6 +35,17 @@ router.get("/account", async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Failed to load account" });
+  }
+});
+
+// inbox
+router.get("/inbox", async (req, res) => {
+  try {
+    const messages = await getInbox("test-user-1");
+    return res.json({ messages });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Failed to fetch inbox" });
   }
 });
 

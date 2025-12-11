@@ -14,5 +14,6 @@ app.use(
 );
 
 app.use("/email", emailRoutes);
+app.use("/inbox", emailRoutes);
 
 export default app;
