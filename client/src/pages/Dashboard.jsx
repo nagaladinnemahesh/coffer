@@ -89,7 +89,7 @@ export default function Dashboard() {
 
           <button
             className="btn-secondary"
-            onClick={() => alert("Inbox soon!")}
+            onClick={() => (window.location.href = "inbox")}
           >
             View Inbox
           </button>

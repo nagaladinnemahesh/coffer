@@ -11,6 +11,8 @@ export function getGoogleAuthURL() {
     prompt: "consent",
     scope: [
       "https://mail.google.com",
+      // "https://www.googleapis.com/auth/gmail.send",
+      // "http://www.googleapis.com/auth/gmail.readonly",
       "https://www.googleapis.com/auth/userinfo.email",
       "openid",
       "profile",
