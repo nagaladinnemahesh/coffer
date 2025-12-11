@@ -6,6 +6,7 @@ import {
   getUserProfile,
 } from "../services/google.service.js";
 import GmailAccount from "../models/GmailAccount.model.js";
+import axios from "axios";
 
 const router = Router();
 
@@ -28,6 +29,7 @@ router.get("/account", async (req, res) => {
     return res.json({
       connected: true,
       email: account.gmail_email,
+      picture: account.picture,
     });
   } catch (err) {
     console.log(err);
@@ -42,6 +44,26 @@ router.post("/disconnect", async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Failed to disconnect" });
+  }
+});
+
+router.get("/avatar", async (req, res) => {
+  try {
+    const account = await GmailAccount.findOne({ user_id: "test-user-1" });
+    if (!account || !account.picture) {
+      return res.status(404).send("No Picture");
+    }
+
+    const imageUrl = account.picture + "?sz=200";
+    const response = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+    });
+
+    res.set("Content-Type", "image/jpeg");
+    res.send(response.data);
+  } catch (err) {
+    console.log("avatar fetch error:", err);
+    res.status(500).send("Failed to load avatar");
   }
 });
 
@@ -66,6 +88,7 @@ router.get("/oauth/callback", async (req, res) => {
         gmail_email: profile.email,
         refresh_token: tokens.refresh_token,
         access_token: tokens.access_token,
+        picture: profile.picture,
         expiry_date: Date.now() + tokens.expires_in * 1000,
       },
       { upsert: true }

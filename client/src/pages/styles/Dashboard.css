@@ -1,0 +1,50 @@
+.dashboard-container {
+  padding: 32px;
+  font-family: sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  margin-right: 12px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  margin-left: 12px;
+  background: #eee;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.dashboard-title {
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.placeholder {
+  background: #ddd;
+}
