@@ -9,6 +9,7 @@ const GmailAccountSchema = new mongoose.Schema(
     gmail_email: String,
     refresh_token: String,
     access_token: String,
+    picture: String,
     expiry_date: Number,
   },
   { timestamps: true }
