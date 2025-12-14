@@ -2,7 +2,7 @@ import axios from "axios";
 import GmailAccount from "../models/GmailAccount.model.js";
 import { getAccessTokenFromRefreshToken } from "./google.service.js";
 
-export async function getInbox(userId) {
+export async function getInbox(userId, pageToken = null, maxResults = 10) {
   const account = await GmailAccount.findOne({ user_id: userId });
   if (!account) throw new Error("No gmail account connected");
 
@@ -16,11 +16,12 @@ export async function getInbox(userId) {
     "https://gmail.googleapis.com/gmail/v1/users/me/messages",
     {
       headers: { Authorization: `Bearer ${accessToken}` },
-      params: { maxResults: 20 },
+      params: { maxResults, pageToken: pageToken || undefined },
     }
   );
 
   const emails = emailListResponse.data.messages || [];
+  const nextPageToken = emailListResponse.data.nextPageToken || null;
 
   // fetch details of each email
 
@@ -45,5 +46,8 @@ export async function getInbox(userId) {
     detailedEmail.push({ id: email.id, from, subject, snippet });
   }
 
-  return detailedEmail;
+  return {
+    messages: detailedEmail,
+    nextPageToken,
+  };
 }

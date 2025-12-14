@@ -3,19 +3,31 @@ import axios from "axios";
 
 export default function Inbox() {
   const [messages, setMessages] = useState([]);
+  const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // load inbox
+  const loadInbox = (pageToken = null) => {
+    setLoading(true);
+
     axios
-      .get("http://localhost:3000/email/inbox")
+      .get("http://localhost:3000/email/inbox", {
+        params: { pageToken },
+      })
       .then((res) => {
-        setMessages(res.data.messages);
+        setMessages((prev) => [...prev, ...res.data.messages]);
+        setNextPageToken(res.data.nextPageToken || null);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, []);
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  };
 
-  if (loading) return <p>Loading inbox..</p>;
+  useEffect(() => {
+    loadInbox();
+  });
 
   return (
     <div style={{ padding: "24px" }}>
@@ -39,6 +51,12 @@ export default function Inbox() {
           <p style={{ color: "#555" }}>{msg.snippet}</p>
         </div>
       ))}
+
+      {loading && <p>Gathering Emails...</p>}
+
+      {nextPageToken && !loading && (
+        <button onClick={() => loadInbox(nextPageToken)}>Load More</button>
+      )}
     </div>
   );
 }

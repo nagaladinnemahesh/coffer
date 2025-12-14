@@ -41,8 +41,12 @@ router.get("/account", async (req, res) => {
 // inbox
 router.get("/inbox", async (req, res) => {
   try {
-    const messages = await getInbox("test-user-1");
-    return res.json({ messages });
+    const { pageToken } = req.query;
+    const data = await getInbox("test-user-1", pageToken, 10);
+    return res.json({
+      messages: data.messages,
+      nextPageToken: data.nextPageToken,
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Failed to fetch inbox" });
