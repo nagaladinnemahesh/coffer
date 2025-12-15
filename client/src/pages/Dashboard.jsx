@@ -75,7 +75,7 @@ export default function Dashboard() {
         <div style={{ marginTop: "24px" }}>
           <button
             className="btn-primary"
-            onClick={() => axios.get("http://localhost:3000/email/send-oauth")}
+            onClick={() => api.get("http://localhost:3000/email/send-oauth")}
           >
             Send Test Email
           </button>
@@ -106,6 +106,16 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      <button
+        className="btn-secondary"
+        onClick={() => {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }}
+      >
+        Logout
+      </button>
     </div>
   );
 }
