@@ -8,20 +8,35 @@ import {
 } from "../services/google.service.js";
 import GmailAccount from "../models/GmailAccount.model.js";
 import axios from "axios";
+import { requireAuth } from "../middleware/auth.middleware.js";
+import jwt from "jsonwebtoken";
 
 const router = Router();
 
 //redirect to google OAuth ---- step 1
 
 router.get("/connect", (req, res) => {
-  const url = getGoogleAuthURL();
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.status(401).json({ error: "Missing token" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const url = getGoogleAuthURL(userId);
+    return res.redirect(url);
+  } catch (err) {
+    console.log("oauth connect error: ", err);
+    return res.status(401).json({ error: "Invalid token" });
+  }
   // console.log("googleurl:", url);
-  return res.redirect(url);
 });
 
-router.get("/account", async (req, res) => {
+router.get("/account", requireAuth, async (req, res) => {
   try {
-    const account = await GmailAccount.findOne({ user_id: "test-user-1" });
+    const account = await GmailAccount.findOne({ user_id: req.user.id });
 
     if (!account) {
       return res.json({ connected: false });
@@ -39,10 +54,10 @@ router.get("/account", async (req, res) => {
 });
 
 // inbox
-router.get("/inbox", async (req, res) => {
+router.get("/inbox", requireAuth, async (req, res) => {
   try {
     const { pageToken } = req.query;
-    const data = await getInbox("test-user-1", pageToken, 10);
+    const data = await getInbox(req.user.id, pageToken, 10);
     return res.json({
       messages: data.messages,
       nextPageToken: data.nextPageToken,
@@ -53,9 +68,9 @@ router.get("/inbox", async (req, res) => {
   }
 });
 
-router.post("/disconnect", async (req, res) => {
+router.post("/disconnect", requireAuth, async (req, res) => {
   try {
-    await GmailAccount.deleteOne({ user_id: "test-user-1" });
+    await GmailAccount.deleteOne({ user_id: req.user.id });
     return res.json({ success: true });
   } catch (err) {
     console.log(err);
@@ -63,9 +78,9 @@ router.post("/disconnect", async (req, res) => {
   }
 });
 
-router.get("/avatar", async (req, res) => {
+router.get("/avatar", requireAuth, async (req, res) => {
   try {
-    const account = await GmailAccount.findOne({ user_id: "test-user-1" });
+    const account = await GmailAccount.findOne({ user_id: req.user.id });
     if (!account || !account.picture) {
       return res.status(404).send("No Picture");
     }
@@ -86,11 +101,13 @@ router.get("/avatar", async (req, res) => {
 // handle call back --------- step 2
 
 router.get("/oauth/callback", async (req, res) => {
-  const code = req.query.code;
+  const { code, state } = req.query;
 
-  if (!code) {
-    return res.status(400).json({ error: "Missing OAuth code" });
+  if (!code || !state) {
+    return res.status(400).json({ error: "Missing OAuth data" });
   }
+
+  const userId = state;
 
   try {
     // exchange code for tokens
@@ -99,7 +116,7 @@ router.get("/oauth/callback", async (req, res) => {
     // return res.json({ tokens });
     const profile = await getUserProfile(tokens.access_token);
     await GmailAccount.findOneAndUpdate(
-      { user_id: "test-user-1" },
+      { user_id: userId },
       {
         gmail_email: profile.email,
         refresh_token: tokens.refresh_token,
@@ -118,9 +135,9 @@ router.get("/oauth/callback", async (req, res) => {
   }
 });
 
-router.get("/send-oauth", async (req, res) => {
+router.get("/send-oauth", requireAuth, async (req, res) => {
   try {
-    const result = await sendOAuthEmail();
+    const result = await sendOAuthEmail(req.user.id);
     return res.json({ message: "oauth Email sent", result });
   } catch (err) {
     console.log(err);

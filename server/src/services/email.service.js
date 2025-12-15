@@ -13,11 +13,11 @@ oAuth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
 });
 
-export async function sendOAuthEmail() {
+export async function sendOAuthEmail(userId) {
   // console.log("REFRESH:", process.env.GOOGLE_REFRESH_TOKEN);
   // console.log("SMTP:", process.env.SMTP_EMAIL);
 
-  const account = await GmailAccount.findOne({ user_id: "test-user-1" });
+  const account = await GmailAccount.findOne({ user_id: userId });
 
   if (!account) {
     throw new Error("No gmail account connected");

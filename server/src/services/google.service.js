@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export function getGoogleAuthURL() {
+export function getGoogleAuthURL(userId) {
   const rootUrl = "http://accounts.google.com/o/oauth2/v2/auth";
 
   const options = {
@@ -9,6 +9,7 @@ export function getGoogleAuthURL() {
     access_type: "offline",
     response_type: "code",
     prompt: "consent",
+    state: userId,
     scope: [
       "https://mail.google.com",
       // "https://www.googleapis.com/auth/gmail.send",
@@ -16,6 +17,7 @@ export function getGoogleAuthURL() {
       "https://www.googleapis.com/auth/userinfo.email",
       "openid",
       "profile",
+      "email",
     ].join(" "),
   };
 

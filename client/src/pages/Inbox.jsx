@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "../axios";
 
 export default function Inbox() {
   const [messages, setMessages] = useState([]);
@@ -10,7 +11,7 @@ export default function Inbox() {
   const loadInbox = (pageToken = null) => {
     setLoading(true);
 
-    axios
+    api
       .get("http://localhost:3000/email/inbox", {
         params: { pageToken },
       })

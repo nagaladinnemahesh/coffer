@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import "./styles/Dashboard.css";
+import api from "../axios";
 
 export default function Dashboard() {
   const [state, setState] = useState({
@@ -11,7 +12,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    axios
+    api
       .get("http://localhost:3000/email/account")
       .then((res) => {
         setState({
@@ -37,9 +38,16 @@ export default function Dashboard() {
         <h1 className="dashboard-title">No Gmail Connected</h1>
         <button
           className="btn-primary"
-          onClick={() =>
-            (window.location.href = "http://localhost:3000/email/connect")
-          }
+          onClick={() => {
+            const token = localStorage.getItem("token");
+            // console.log("TOKEN:", localStorage.getItem("token"));
+
+            if (!token) {
+              alert("please login again");
+              return;
+            }
+            window.location.href = `http://localhost:3000/email/connect?token=${token}`;
+          }}
         >
           Connect Gmail
         </button>
@@ -67,11 +75,7 @@ export default function Dashboard() {
         <div style={{ marginTop: "24px" }}>
           <button
             className="btn-primary"
-            onClick={() =>
-              axios
-                .get("http://localhost:3000/email/send-oauth")
-                .then(() => alert("Email sent"))
-            }
+            onClick={() => axios.get("http://localhost:3000/email/send-oauth")}
           >
             Send Test Email
           </button>
@@ -79,7 +83,7 @@ export default function Dashboard() {
           <button
             className="btn-secondary"
             onClick={() => {
-              axios
+              api
                 .post("http://localhost:3000/email/disconnect")
                 .then(() => window.location.reload());
             }}
