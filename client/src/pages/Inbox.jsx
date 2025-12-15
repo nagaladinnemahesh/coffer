@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 // import axios from "axios";
 import api from "../axios";
+// import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Inbox() {
+  const navigate = useNavigate();
+
   const [messages, setMessages] = useState([]);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +20,13 @@ export default function Inbox() {
         params: { pageToken },
       })
       .then((res) => {
-        setMessages((prev) => [...prev, ...res.data.messages]);
+        setMessages((prev) => {
+          const map = new Map();
+          [...prev, ...res.data.messages].forEach((m) => {
+            map.set(m.id, m);
+          });
+          return Array.from(map.values());
+        });
         setNextPageToken(res.data.nextPageToken || null);
         setLoading(false);
       })
@@ -28,15 +38,28 @@ export default function Inbox() {
 
   useEffect(() => {
     loadInbox();
-  });
+  }, []);
 
   return (
     <div style={{ padding: "24px" }}>
+      <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
+        <button onClick={() => navigate("/dashboard")}>← Back</button>
+
+        <button
+          onClick={() => {
+            api.post("/email/disconnect").then(() => {
+              navigate("/dashboard");
+            });
+          }}
+        >
+          Disconnect Gmail
+        </button>
+      </div>
       <h1>Inbox</h1>
 
-      {messages.map((msg) => (
+      {messages.map((msg, index) => (
         <div
-          key={msg.id}
+          key={`${msg.id}-${index}`}
           style={{
             padding: "12px",
             borderBottom: "1px solid #ddd",
