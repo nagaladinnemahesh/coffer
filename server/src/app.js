@@ -1,5 +1,6 @@
 import express from "express";
 import emailRoutes from "./routes/email.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 import cors from "cors";
 
 import "dotenv/config";
@@ -12,7 +13,11 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
 
+//routes
+
+app.use("/auth", authRoutes);
 app.use("/email", emailRoutes);
 app.use("/inbox", emailRoutes);
 
