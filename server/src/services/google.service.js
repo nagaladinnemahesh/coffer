@@ -11,14 +11,14 @@ export function getGoogleAuthURL(userId) {
     prompt: "consent",
     state: userId,
     scope: [
-      "https://mail.google.com",
+      // "https://mail.google.com",
       "https://www.googleapis.com/auth/gmail.send",
       "https://www.googleapis.com/auth/gmail.readonly",
       "https://www.googleapis.com/auth/userinfo.email",
       // "https://www.googleapis.com/auth/userinfo.profile",
       "openid",
       "profile",
-      "email",
+      // "email",
     ].join(" "),
   };
 

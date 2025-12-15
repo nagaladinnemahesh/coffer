@@ -75,7 +75,13 @@ export default function Dashboard() {
         <div style={{ marginTop: "24px" }}>
           <button
             className="btn-primary"
-            onClick={() => api.get("http://localhost:3000/email/send-oauth")}
+            onClick={() =>
+              api.post("email/send-oauth", {
+                to: "maheshnagaladinne21@gmail.com",
+                subject: "Test from Coffer",
+                body: "This email was sent using Gmail API",
+              })
+            }
           >
             Send Test Email
           </button>
