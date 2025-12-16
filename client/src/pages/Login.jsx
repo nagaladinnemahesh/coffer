@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { showSuccess, showError } from "../utils/toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,9 +17,12 @@ export default function Login() {
       });
 
       localStorage.setItem("token", res.data.token);
+
+      showSuccess("Login Succesfull");
       navigate("/dashboard");
     } catch (err) {
-      alert("Invalid credentials");
+      // alert("Invalid credentials");
+      showError("Invalid Email or Password");
     }
   };
 

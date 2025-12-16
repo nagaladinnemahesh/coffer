@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 // import axios from "axios";
-import "./styles/Dashboard.css";
+import "../styles/Dashboard.css";
 import api from "../axios";
+import { showSuccess, showError } from "../utils/toast";
 
 export default function Dashboard() {
   const [state, setState] = useState({
@@ -43,9 +44,11 @@ export default function Dashboard() {
             // console.log("TOKEN:", localStorage.getItem("token"));
 
             if (!token) {
-              alert("please login again");
+              // alert("please login again");
+              showError("session expired, please login again");
               return;
             }
+            showSuccess("Redirecting to google oauth");
             window.location.href = `http://localhost:3000/email/connect?token=${token}`;
           }}
         >
@@ -75,23 +78,35 @@ export default function Dashboard() {
         <div style={{ marginTop: "24px" }}>
           <button
             className="btn-primary"
-            onClick={() =>
-              api.post("email/send-oauth", {
-                to: "maheshnagaladinne21@gmail.com",
-                subject: "Test from Coffer",
-                body: "This email was sent using Gmail API",
-              })
-            }
+            onClick={async () => {
+              try {
+                await api.post("email/send-oauth", {
+                  to: "maheshnagaladinne21@gmail.com",
+                  subject: "Test from Coffer",
+                  body: "This email was sent using Gmail API",
+                });
+                showSuccess("Email sent successfully");
+              } catch {
+                showError("Failed to send email");
+              }
+            }}
           >
             Send Test Email
           </button>
 
           <button
             className="btn-secondary"
-            onClick={() => {
-              api
-                .post("http://localhost:3000/email/disconnect")
-                .then(() => window.location.reload());
+            onClick={async () => {
+              try {
+                await api.post("/email/disconnect");
+                showSuccess("Gmail disconnected");
+                window.location.reload();
+              } catch {
+                showError("Failed to disconnect gmail");
+              }
+              // api
+              //   .post("http://localhost:3000/email/disconnect")
+              //   .then(() => window.location.reload());
             }}
           >
             Disconnect Gmail
@@ -113,7 +128,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <button
+      {/* <button
         className="btn-secondary"
         onClick={() => {
           localStorage.removeItem("token");
@@ -121,7 +136,7 @@ export default function Dashboard() {
         }}
       >
         Logout
-      </button>
+      </button> */}
     </div>
   );
 }
