@@ -1,56 +1,67 @@
 import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import api from "../axios.js";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/auth.css";
+import { showSuccess, showError } from "../utils/toast";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axios.post("http://localhost:3000/auth/register", {
+      await api.post("http://localhost:3000/auth/register", {
         email,
         password,
       });
-      alert("Registered successfully");
+      showSuccess("Account created successfully");
       navigate("/login");
-    } catch {
-      alert("Registration failed");
+    } catch (err) {
+      showError("User already exists");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Register</h1>
-      <form onSubmit={handleRegister}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <br />
-        <br />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br />
-        <br />
-        <button type="submit">Register</button>
-        <p>
-          Already registered?{" "}
-          <span
-            style={{ color: "blue", cursor: "pointer" }}
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </span>
-        </p>
-      </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1 className="auth-title">Coffer</h1>
+        <p className="auth-subtitle">Create your account</p>
+        <form onSubmit={handleRegister}>
+          <div className="auth-group">
+            <label>Email</label>
+            <input
+              type="email"
+              required
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="auth-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button className="auth-btn" disabled={loading}>
+            {loading ? "Creating account.." : "Register"}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Already Registered? <Link to="/login">Login</Link>
+        </div>
+      </div>
     </div>
   );
 }
