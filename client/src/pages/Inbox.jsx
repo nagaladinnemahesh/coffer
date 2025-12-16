@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../axios";
 // import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Inbox() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function Inbox() {
 
   // load inbox
   const loadInbox = (pageToken = null) => {
+    const toastId = toast.loading("Fetching emails...");
     setLoading(true);
 
     api
@@ -28,10 +30,11 @@ export default function Inbox() {
           return Array.from(map.values());
         });
         setNextPageToken(res.data.nextPageToken || null);
-        setLoading(false);
+        toast.success("Inbox loaded", { id: toastId });
       })
       .catch((err) => {
         console.error(err);
+        toast.error("Failed to load inbox", { id: toastId });
         setLoading(false);
       });
   };

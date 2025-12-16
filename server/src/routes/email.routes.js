@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { sendOAuthEmail } from "../services/email.service.js";
 import { getInbox } from "../services/gmail.service.js";
+import { sendEmail } from "../services/gmailSend.service.js";
 import {
   getGoogleAuthURL,
   getTokens,
@@ -135,13 +136,26 @@ router.get("/oauth/callback", async (req, res) => {
   }
 });
 
-router.get("/send-oauth", requireAuth, async (req, res) => {
+// router.get("/send-oauth", requireAuth, async (req, res) => {
+//   try {
+//     const result = await sendOAuthEmail(req.user.id);
+//     return res.json({ message: "oauth Email sent", result });
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(500).json({ error: "Failed to send oauth email" });
+//   }
+// });
+
+router.post("/send-oauth", requireAuth, async (req, res) => {
   try {
-    const result = await sendOAuthEmail(req.user.id);
-    return res.json({ message: "oauth Email sent", result });
+    const { to, subject, body } = req.body;
+
+    await sendEmail(req.user.id, { to, subject, body });
+
+    res.json({ success: true, message: "Email sent via Gmail api" });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: "Failed to send oauth email" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email" });
   }
 });
 
