@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // import axios from "axios";
 import api from "../axios";
 // import { Navigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 
 export default function Inbox() {
   const navigate = useNavigate();
+  const fetchedRef = useRef(false);
 
   const [messages, setMessages] = useState([]);
   const [nextPageToken, setNextPageToken] = useState(null);
@@ -30,6 +31,7 @@ export default function Inbox() {
           return Array.from(map.values());
         });
         setNextPageToken(res.data.nextPageToken || null);
+        setLoading(false);
         toast.success("Inbox loaded", { id: toastId });
       })
       .catch((err) => {
@@ -40,6 +42,8 @@ export default function Inbox() {
   };
 
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
     loadInbox();
   }, []);
 
