@@ -106,6 +106,10 @@ router.get("/oauth/callback", async (req, res) => {
   const { code, state } = req.query;
   const frontendURL = process.env.FRONTEND_URL;
 
+  if (!frontendURL) {
+    return res.status(500).send("FRONTEND_URL not configured");
+  }
+
   if (!code || !state) {
     return res.redirect(`${frontendURL}/dashboard`);
   }
@@ -120,17 +124,6 @@ router.get("/oauth/callback", async (req, res) => {
     // exchange code for tokens
     const tokens = await getTokens({ code });
     const profile = await getUserProfile(tokens.access_token);
-    // await GmailAccount.findOneAndUpdate(
-    //   { user_id: userId },
-    //   {
-    //     gmail_email: profile.email,
-    //     refresh_token: tokens.refresh_token,
-    //     access_token: tokens.access_token,
-    //     picture: profile.picture,
-    //     expiry_date: Date.now() + tokens.expires_in * 1000,
-    //   },
-    //   { upsert: true }
-    // );
 
     const existingAccount = await GmailAccount.findOne({ user_id: userId });
 
