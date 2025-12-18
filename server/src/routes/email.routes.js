@@ -11,6 +11,7 @@ import GmailAccount from "../models/GmailAccount.model.js";
 import axios from "axios";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import jwt from "jsonwebtoken";
+import User from "../models/User.model.js";
 
 const router = Router();
 
@@ -122,23 +123,46 @@ router.get("/oauth/callback", async (req, res) => {
     // console.log("TOKENS: ", tokens);
     // return res.json({ tokens });
     const profile = await getUserProfile(tokens.access_token);
-    await GmailAccount.findOneAndUpdate(
-      { user_id: userId },
-      {
-        gmail_email: profile.email,
-        refresh_token: tokens.refresh_token,
-        access_token: tokens.access_token,
-        picture: profile.picture,
-        expiry_date: Date.now() + tokens.expires_in * 1000,
-      },
-      { upsert: true }
-    );
+    // await GmailAccount.findOneAndUpdate(
+    //   { user_id: userId },
+    //   {
+    //     gmail_email: profile.email,
+    //     refresh_token: tokens.refresh_token,
+    //     access_token: tokens.access_token,
+    //     picture: profile.picture,
+    //     expiry_date: Date.now() + tokens.expires_in * 1000,
+    //   },
+    //   { upsert: true }
+    // );
+
+    const update = {
+      gmail_email: profile.email,
+      access_token: tokens.access_token,
+      picture: profile.picture,
+      expiry_date: Date.now() + tokens.expires_in * 1000,
+    };
+
+    if (tokens.refresh_token) {
+      update.refresh_token = tokens.refresh_token;
+    }
+
+    await GmailAccount.findOneAndUpdate({ user_id: userId }, update, {
+      upsert: true,
+    });
 
     console.log("Gmail connected:", profile.email);
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    const frontendURL = process.env.FRONTEND_URL;
+
+    if (!frontendURL) {
+      throw new Error("Frontend_url not set");
+    }
+    return res.redirect(`${frontendURL}/dashboard`);
   } catch (err) {
-    console.log(err.response?.data || err);
-    return res.status(500).json({ error: "oauth failed" });
+    console.error("OAuth callback error:", err);
+    return res.status(500).json({
+      error: "oauth failed",
+      details: err.message,
+    });
   }
 });
 
