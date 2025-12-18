@@ -19,7 +19,7 @@ export default function Inbox() {
     setLoading(true);
 
     api
-      .get("http://localhost:3000/email/inbox", {
+      .get("/email/inbox", {
         params: { pageToken },
       })
       .then((res) => {
