@@ -129,7 +129,7 @@ router.get("/oauth/callback", async (req, res) => {
     );
 
     console.log("Gmail connected:", profile.email);
-    return res.redirect("http://localhost:5173/dashboard");
+    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   } catch (err) {
     console.log(err.response?.data || err);
     return res.status(500).json({ error: "oauth failed" });
