@@ -109,6 +109,12 @@ router.get("/oauth/callback", async (req, res) => {
   }
 
   const userId = state;
+  const userExists = await User.findById(userId);
+  if (!userExists) {
+    return res.status(401).json({
+      error: "Invalid OAuth user",
+    });
+  }
 
   try {
     // exchange code for tokens
