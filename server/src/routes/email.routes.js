@@ -103,25 +103,29 @@ router.get("/avatar", requireAuth, async (req, res) => {
 // handle call back --------- step 2
 
 router.get("/oauth/callback", async (req, res) => {
-  const { code, state } = req.query;
   const frontendURL = process.env.FRONTEND_URL;
 
   if (!frontendURL) {
-    return res.status(500).send("FRONTEND_URL not configured");
-  }
-
-  if (!code || !state) {
-    return res.redirect(`${frontendURL}/dashboard`);
-  }
-
-  const userId = state;
-  const userExists = await User.findById(userId);
-  if (!userExists) {
-    return res.redirect(`${frontendURL}/dashboard`);
+    console.error("FRONTEND_URL missing");
+    return res.status(500).send("Server misconfigured");
   }
 
   try {
-    // exchange code for tokens
+    const { code, state } = req.query;
+
+    if (!code || !state) {
+      console.error("Missing code/state");
+      return res.redirect(`${frontendURL}/dashboard`);
+    }
+
+    const userId = state;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("Invalid OAuth user");
+      return res.redirect(`${frontendURL}/dashboard`);
+    }
+
     const tokens = await getTokens({ code });
     const profile = await getUserProfile(tokens.access_token);
 
@@ -145,15 +149,12 @@ router.get("/oauth/callback", async (req, res) => {
     });
 
     console.log("Gmail connected:", profile.email);
-
-    if (!frontendURL) {
-      throw new Error("Frontend_url not set");
-    }
-    return res.redirect(`${frontendURL}/dashboard`);
   } catch (err) {
-    console.error("OAuth callback error:", err.message);
-    return res.redirect(`${frontendURL}/dashboard`);
+    console.error("OAuth callback error:", err.response?.data || err.message);
   }
+
+  // ✅ ALWAYS redirect exactly once
+  return res.redirect(`${frontendURL}/dashboard`);
 });
 
 // router.get("/send-oauth", requireAuth, async (req, res) => {
