@@ -16,7 +16,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await api.post("http://localhost:3000/auth/login", {
+      const res = await api.post("/auth/login", {
         email,
         password,
       });

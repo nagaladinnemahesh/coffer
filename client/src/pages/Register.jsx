@@ -14,7 +14,7 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("http://localhost:3000/auth/register", {
+      await api.post("/auth/register", {
         email,
         password,
       });
