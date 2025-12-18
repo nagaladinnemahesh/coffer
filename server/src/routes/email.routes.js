@@ -21,7 +21,7 @@ router.get("/connect", (req, res) => {
   try {
     const token = req.query.token;
     if (!token) {
-      return res.status(401).json({ error: "Missing token" });
+      return res.redirect(`${process.env.FRONTEND_URL}/login`);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -104,24 +104,21 @@ router.get("/avatar", requireAuth, async (req, res) => {
 
 router.get("/oauth/callback", async (req, res) => {
   const { code, state } = req.query;
+  const frontendURL = process.env.FRONTEND_URL;
 
   if (!code || !state) {
-    return res.status(400).json({ error: "Missing OAuth data" });
+    return res.redirect(`${frontendURL}/dashboard`);
   }
 
   const userId = state;
   const userExists = await User.findById(userId);
   if (!userExists) {
-    return res.status(401).json({
-      error: "Invalid OAuth user",
-    });
+    return res.redirect(`${frontendURL}/dashboard`);
   }
 
   try {
     // exchange code for tokens
     const tokens = await getTokens({ code });
-    // console.log("TOKENS: ", tokens);
-    // return res.json({ tokens });
     const profile = await getUserProfile(tokens.access_token);
     // await GmailAccount.findOneAndUpdate(
     //   { user_id: userId },
@@ -135,6 +132,8 @@ router.get("/oauth/callback", async (req, res) => {
     //   { upsert: true }
     // );
 
+    const existingAccount = await GmailAccount.findOne({ user_id: userId });
+
     const update = {
       gmail_email: profile.email,
       access_token: tokens.access_token,
@@ -144,6 +143,8 @@ router.get("/oauth/callback", async (req, res) => {
 
     if (tokens.refresh_token) {
       update.refresh_token = tokens.refresh_token;
+    } else if (existingAccount?.refresh_token) {
+      update.refresh_token = existingAccount.refresh_token;
     }
 
     await GmailAccount.findOneAndUpdate({ user_id: userId }, update, {
@@ -151,18 +152,14 @@ router.get("/oauth/callback", async (req, res) => {
     });
 
     console.log("Gmail connected:", profile.email);
-    const frontendURL = process.env.FRONTEND_URL;
 
     if (!frontendURL) {
       throw new Error("Frontend_url not set");
     }
     return res.redirect(`${frontendURL}/dashboard`);
   } catch (err) {
-    console.error("OAuth callback error:", err);
-    return res.status(500).json({
-      error: "oauth failed",
-      details: err.message,
-    });
+    console.error("OAuth callback error:", err.message);
+    return res.redirect(`${frontendURL}/dashboard`);
   }
 });
 
