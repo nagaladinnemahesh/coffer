@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { sendOAuthEmail } from "../services/email.service.js";
 import { getInbox } from "../services/gmail.service.js";
 import { sendEmail } from "../services/gmailSend.service.js";
 import {
@@ -153,19 +152,9 @@ router.get("/oauth/callback", async (req, res) => {
     console.error("OAuth callback error:", err.response?.data || err.message);
   }
 
-  // ✅ ALWAYS redirect exactly once
+  // redirect exactly once
   return res.redirect(`${frontendURL}/dashboard`);
 });
-
-// router.get("/send-oauth", requireAuth, async (req, res) => {
-//   try {
-//     const result = await sendOAuthEmail(req.user.id);
-//     return res.json({ message: "oauth Email sent", result });
-//   } catch (err) {
-//     console.log(err);
-//     return res.status(500).json({ error: "Failed to send oauth email" });
-//   }
-// });
 
 router.post("/send-oauth", requireAuth, async (req, res) => {
   try {

@@ -1,7 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-// import axios from "axios";
 import api from "../axios";
-// import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 

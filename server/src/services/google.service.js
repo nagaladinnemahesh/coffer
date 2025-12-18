@@ -17,7 +17,6 @@ export function getGoogleAuthURL(userId) {
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",
       "openid",
-      // "email",
     ].join(" "),
   };
 

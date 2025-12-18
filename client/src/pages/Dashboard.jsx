@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// import axios from "axios";
 import "../styles/Dashboard.css";
 import api from "../axios";
 import { showSuccess, showError } from "../utils/toast";
@@ -124,16 +123,6 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-
-      {/* <button
-        className="btn-secondary"
-        onClick={() => {
-          localStorage.removeItem("token");
-          window.location.href = "/login";
-        }}
-      >
-        Logout
-      </button> */}
     </div>
   );
 }
