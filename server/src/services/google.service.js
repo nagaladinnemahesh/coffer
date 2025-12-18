@@ -28,6 +28,7 @@ export function getGoogleAuthURL(userId) {
 
 export async function getTokens({ code }) {
   const url = "https://oauth2.googleapis.com/token";
+  console.log("Using redirect_uri: ", process.env.GOOGLE_REDIRECT_URI);
 
   const values = {
     code,
