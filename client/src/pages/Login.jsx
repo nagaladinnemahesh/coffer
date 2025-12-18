@@ -28,6 +28,8 @@ export default function Login() {
     } catch (err) {
       // alert("Invalid credentials");
       showError("Invalid Email or Password");
+    } finally {
+      setLoading(false);
     }
   };
 
