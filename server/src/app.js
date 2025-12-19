@@ -2,6 +2,7 @@ import express from "express";
 import emailRoutes from "./routes/email.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import cors from "cors";
+import aiRoutes from "./routes/ai.routes.js";
 
 import "dotenv/config";
 
@@ -33,5 +34,6 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/email", emailRoutes);
 app.use("/inbox", emailRoutes);
+app.use("/ai", aiRoutes);
 
 export default app;
