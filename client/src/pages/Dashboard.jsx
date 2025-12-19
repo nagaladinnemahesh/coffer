@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import "../styles/Dashboard.css";
 import api from "../axios";
 import { showSuccess, showError } from "../utils/toast";
+import ComposeModal from "../components/ComposeModal.jsx";
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Dashboard() {
+  const [showCompose, setShowCompose] = useState(false);
   const [state, setState] = useState({
     loading: true,
     connected: false,
@@ -117,12 +119,16 @@ export default function Dashboard() {
 
           <button
             className="btn-secondary"
-            onClick={() => alert("Compose coming soon!")}
+            onClick={() => setShowCompose(true)}
           >
             Compose Email
           </button>
         </div>
       </div>
+      <ComposeModal
+        isOpen={showCompose}
+        onClose={() => setShowCompose(false)}
+      />
     </div>
   );
 }
