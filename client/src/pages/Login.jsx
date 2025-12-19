@@ -16,17 +16,20 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await api.post("http://localhost:3000/auth/login", {
+      const res = await api.post("/auth/login", {
         email,
         password,
       });
 
       localStorage.setItem("token", res.data.token);
+      console.log(res.data.token);
       showSuccess("Login Successful");
       navigate("/dashboard");
     } catch (err) {
       // alert("Invalid credentials");
       showError("Invalid Email or Password");
+    } finally {
+      setLoading(false);
     }
   };
 

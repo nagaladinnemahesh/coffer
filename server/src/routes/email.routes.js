@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { sendOAuthEmail } from "../services/email.service.js";
 import { getInbox } from "../services/gmail.service.js";
 import { sendEmail } from "../services/gmailSend.service.js";
 import {
@@ -11,6 +10,7 @@ import GmailAccount from "../models/GmailAccount.model.js";
 import axios from "axios";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import jwt from "jsonwebtoken";
+import User from "../models/User.model.js";
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get("/connect", (req, res) => {
   try {
     const token = req.query.token;
     if (!token) {
-      return res.status(401).json({ error: "Missing token" });
+      return res.redirect(`${process.env.FRONTEND_URL}/login`);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -102,49 +102,59 @@ router.get("/avatar", requireAuth, async (req, res) => {
 // handle call back --------- step 2
 
 router.get("/oauth/callback", async (req, res) => {
-  const { code, state } = req.query;
+  const frontendURL = process.env.FRONTEND_URL;
 
-  if (!code || !state) {
-    return res.status(400).json({ error: "Missing OAuth data" });
+  if (!frontendURL) {
+    console.error("FRONTEND_URL missing");
+    return res.status(500).send("Server misconfigured");
   }
-
-  const userId = state;
 
   try {
-    // exchange code for tokens
+    const { code, state } = req.query;
+
+    if (!code || !state) {
+      console.error("Missing code/state");
+      return res.redirect(`${frontendURL}/dashboard`);
+    }
+
+    const userId = state;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("Invalid OAuth user");
+      return res.redirect(`${frontendURL}/dashboard`);
+    }
+
     const tokens = await getTokens({ code });
-    // console.log("TOKENS: ", tokens);
-    // return res.json({ tokens });
     const profile = await getUserProfile(tokens.access_token);
-    await GmailAccount.findOneAndUpdate(
-      { user_id: userId },
-      {
-        gmail_email: profile.email,
-        refresh_token: tokens.refresh_token,
-        access_token: tokens.access_token,
-        picture: profile.picture,
-        expiry_date: Date.now() + tokens.expires_in * 1000,
-      },
-      { upsert: true }
-    );
+
+    const existingAccount = await GmailAccount.findOne({ user_id: userId });
+
+    const update = {
+      gmail_email: profile.email,
+      access_token: tokens.access_token,
+      picture: profile.picture,
+      expiry_date: Date.now() + tokens.expires_in * 1000,
+    };
+
+    if (tokens.refresh_token) {
+      update.refresh_token = tokens.refresh_token;
+    } else if (existingAccount?.refresh_token) {
+      update.refresh_token = existingAccount.refresh_token;
+    }
+
+    await GmailAccount.findOneAndUpdate({ user_id: userId }, update, {
+      upsert: true,
+    });
 
     console.log("Gmail connected:", profile.email);
-    return res.redirect("http://localhost:5173/dashboard");
   } catch (err) {
-    console.log(err.response?.data || err);
-    return res.status(500).json({ error: "oauth failed" });
+    console.error("OAuth callback error:", err.response?.data || err.message);
   }
-});
 
-// router.get("/send-oauth", requireAuth, async (req, res) => {
-//   try {
-//     const result = await sendOAuthEmail(req.user.id);
-//     return res.json({ message: "oauth Email sent", result });
-//   } catch (err) {
-//     console.log(err);
-//     return res.status(500).json({ error: "Failed to send oauth email" });
-//   }
-// });
+  // redirect exactly once
+  return res.redirect(`${frontendURL}/dashboard`);
+});
 
 router.post("/send-oauth", requireAuth, async (req, res) => {
   try {

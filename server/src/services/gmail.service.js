@@ -4,11 +4,27 @@ import { getAccessTokenFromRefreshToken } from "./google.service.js";
 
 export async function getInbox(userId, pageToken = null, maxResults = 10) {
   const account = await GmailAccount.findOne({ user_id: userId });
-  if (!account) throw new Error("No gmail account connected");
+  if (!account) {
+    throw new Error("No gmail account connected");
+  }
 
-  const accessToken = await getAccessTokenFromRefreshToken(
+  let accessToken = account.access_token;
+
+  if (!accessToken || Date.now() > account.expiry_date) {
+    if (!account.refresh_token) {
+      throw new Error("No refresh token available");
+    }
+  }
+
+  const newAccessToken = await getAccessTokenFromRefreshToken(
     account.refresh_token
   );
+
+  accessToken = newAccessToken;
+
+  account.access_token = newAccessToken;
+  account.expiry_date = Date.now() + 60 * 60 * 1000;
+  await account.save();
 
   // getting list of emails
 

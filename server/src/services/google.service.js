@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export function getGoogleAuthURL(userId) {
-  const rootUrl = "http://accounts.google.com/o/oauth2/v2/auth";
+  const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 
   const options = {
     client_id: process.env.GOOGLE_CLIENT_ID,
@@ -15,10 +15,8 @@ export function getGoogleAuthURL(userId) {
       "https://www.googleapis.com/auth/gmail.send",
       "https://www.googleapis.com/auth/gmail.readonly",
       "https://www.googleapis.com/auth/userinfo.email",
-      // "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.profile",
       "openid",
-      "profile",
-      // "email",
     ].join(" "),
   };
 
@@ -28,13 +26,17 @@ export function getGoogleAuthURL(userId) {
 }
 
 export async function getTokens({ code }) {
+  // google.service.js
+  const REDIRECT_URI = "https://coffer-o8v1.onrender.com/email/oauth/callback";
+
   const url = "https://oauth2.googleapis.com/token";
+  console.log("Using redirect_uri: ", process.env.GOOGLE_REDIRECT_URI);
 
   const values = {
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    redirect_uri: REDIRECT_URI,
     grant_type: "authorization_code",
   };
 
