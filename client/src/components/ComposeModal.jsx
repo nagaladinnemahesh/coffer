@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../axios.js";
 import "../styles/composeModal.css";
 
-export default function ComposeModal({ isOpen, onClose }) {
+export default function ComposeModal({ isOpen, onClose, initialData }) {
   const [form, setForm] = useState({
     to: "",
     subject: "",
@@ -25,7 +25,7 @@ export default function ComposeModal({ isOpen, onClose }) {
 
     try {
       setSending(true);
-      const toastId = toast.loading("Sending email..");
+      const toastId = toast.loading("Sending email…");
 
       await api.post("/email/send-oauth", form);
 
@@ -40,46 +40,63 @@ export default function ComposeModal({ isOpen, onClose }) {
     }
   };
 
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        to: initialData.to || "",
+        subject: initialData.subject || "",
+        body: initialData.body || "",
+      });
+    }
+  }, [initialData]);
+
   return (
-    <div className="compose-layout">
+    <div className="compose-overlay">
       <div className="compose-modal">
         <div className="compose-header">
           <h3>Compose Email</h3>
-          <button onClick={onClose}>X</button>
+          <button className="close-btn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
         </div>
 
-        <input
-          type="email"
-          name="to"
-          placeholder="To"
-          value={form.to}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="subject"
-          placeholder="Subject"
-          value={form.subject}
-          onChange={handleChange}
-        />
-        <textarea
-          name="body"
-          placeholder="Write your message"
-          rows={8}
-          value={form.body}
-          onChange={handleChange}
-        />
+        <div className="compose-body">
+          <input
+            type="email"
+            name="to"
+            placeholder="To"
+            value={form.to}
+            onChange={handleChange}
+          />
+
+          <input
+            type="text"
+            name="subject"
+            placeholder="Subject"
+            value={form.subject}
+            onChange={handleChange}
+          />
+
+          <textarea
+            name="body"
+            placeholder="Write your message..."
+            rows={8}
+            value={form.body}
+            onChange={handleChange}
+          />
+        </div>
 
         <div className="compose-actions">
           <button className="btn-secondary" onClick={onClose}>
-            cancel
+            Cancel
           </button>
+
           <button
             className="btn-primary"
             onClick={handleSend}
             disabled={sending}
           >
-            {sending ? "Sending.." : "Send"}
+            {sending ? "Sending…" : "Send"}
           </button>
         </div>
       </div>

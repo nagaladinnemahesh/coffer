@@ -1,21 +1,38 @@
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 24px;
-    background: #111827;
-    color: white;
+  height: 58px;
+  padding: 0 24px;
+  background: #111827; /* Slate-900 */
+  border-bottom: 1px solid #1f2937;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .logo {
-    margin: 0px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #c7d2fe; /* Indigo-200 */
+  cursor: pointer;
+}
+
+.logo:hover {
+  color: #e0e7ff;
 }
 
 .logout-btn {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    cursor: pointer;
-    border-radius: 4px;
+  background: #1f2937; /* Slate-800 */
+  color: #fca5a5; /* Soft red */
+  border: 1px solid #374151;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.logout-btn:hover {
+  background: #374151;
+  transform: translateY(-1px);
 }
