@@ -27,7 +27,8 @@ export function getGoogleAuthURL(userId) {
 
 export async function getTokens({ code }) {
   // google.service.js
-  const REDIRECT_URI = "https://coffer-o8v1.onrender.com/email/oauth/callback";
+  // const REDIRECT_URI = "https://coffer-o8v1.onrender.com/email/oauth/callback";
+  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
   const url = "https://oauth2.googleapis.com/token";
   console.log("Using redirect_uri: ", process.env.GOOGLE_REDIRECT_URI);

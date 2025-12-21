@@ -4,7 +4,14 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.post("/analyze", requireAuth, async (req, res) => {
+router.post("/analyze/:messageId", requireAuth, async (req, res) => {
+  const { messageId } = req.params;
+
+  const existing = await emailAnalysisModel.findOne({
+    userId: req.user.id,
+    messageId,
+  });
+
   try {
     const { emailText } = req.body;
 

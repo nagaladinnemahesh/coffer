@@ -42,3 +42,41 @@ Email:
     throw err;
   }
 }
+
+export async function generateReplyWithGemini({ email, analysis, userPrompt }) {
+  const prompt = `you are an assistant that writes professional email replies.
+  Original Email:
+  From: ${email.from}
+  Subject: ${email.subject}
+  Summary: ${analysis.summary}
+
+  Detected Intent: ${analysis.intent}
+  Urgency: ${analysis.urgency}
+
+  User Instruction:
+"${userPrompt || "Write a professional and appropriate reply"}"
+
+Rules:
+- Write a clear, professional email reply
+- Do NOT include subject line
+- Do NOT include placeholders like [Name]
+- Do NOT explain your answer
+- Return ONLY the email body text
+  `;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }],
+      },
+    ],
+  });
+
+  if (!response.text) {
+    throw new Error("Empty response from Gemini");
+  }
+
+  return response.text.trim();
+}

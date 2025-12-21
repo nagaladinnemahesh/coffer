@@ -1,72 +1,127 @@
 .compose-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
+  padding-top: 8vh;
   z-index: 1000;
 }
 
 .compose-modal {
+  width: 100%;
+  max-width: 460px;
   background: #ffffff;
-  width: 520px;
-  max-width: 90%;
   border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.2s ease-in;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: fadeSlide 0.2s ease-out;
 }
 
 .compose-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .compose-header h3 {
   margin: 0;
-  font-size: 18px;
-}
-
-.compose-header button {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.compose-modal input,
-.compose-modal textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
   font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.compose-modal textarea {
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.close-btn:hover {
+  color: #111827;
+}
+
+.compose-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compose-body input,
+.compose-body textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-family: inherit;
+}
+
+.compose-body textarea {
   resize: vertical;
+  min-height: 120px;
+}
+
+.compose-body input:focus,
+.compose-body textarea:focus {
+  border-color: #4f46e5;
 }
 
 .compose-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid #e5e7eb;
 }
 
-@keyframes fadeIn {
+.btn-primary {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #4338ca;
+}
+
+.btn-primary:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #f3f4f6;
+}
+
+@keyframes fadeSlide {
   from {
-    transform: scale(0.95);
     opacity: 0;
+    transform: translateY(-8px);
   }
   to {
-    transform: scale(1);
     opacity: 1;
+    transform: translateY(0);
   }
 }

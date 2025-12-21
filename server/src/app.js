@@ -7,6 +7,7 @@ import aiRoutes from "./routes/ai.routes.js";
 import "dotenv/config";
 
 const app = express();
+app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -27,13 +28,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+// app.use(express.json());
 
 //routes
 
 app.use("/auth", authRoutes);
 app.use("/email", emailRoutes);
-app.use("/inbox", emailRoutes);
-app.use("/ai", aiRoutes);
+// app.use("/inbox", emailRoutes);
+app.use("/reply-ai", emailRoutes);
 
 export default app;
