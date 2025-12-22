@@ -28,7 +28,11 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
     "https://gmail.googleapis.com/gmail/v1/users/me/messages",
     {
       headers: { Authorization: `Bearer ${accessToken}` },
-      params: { maxResults, pageToken: pageToken || undefined },
+      params: {
+        maxResults,
+        pageToken: pageToken || undefined,
+        labelIds: ["INBOX"],
+      },
     }
   );
 
