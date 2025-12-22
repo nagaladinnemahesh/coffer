@@ -7,6 +7,7 @@ import Register from "./pages/Register.jsx";
 import Layout from "./components/Layout.jsx";
 import { Toaster } from "react-hot-toast";
 import { Navigate } from "react-router-dom";
+import Sent from "./pages/Sent.jsx";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/inbox" element={<Inbox />} />
+              <Route path="/sent" element={<Sent />} />
             </Route>
           </Route>
         </Routes>

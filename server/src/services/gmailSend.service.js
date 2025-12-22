@@ -1,6 +1,7 @@
 import axios from "axios";
 import GmailAccount from "../models/GmailAccount.model.js";
 import { getAccessTokenFromRefreshToken } from "./google.service.js";
+import SentEmail from "../models/SentEmail.model.js";
 
 export async function sendEmail(userId, { to, subject, body }) {
   // step1: getting user gmail account
@@ -12,7 +13,7 @@ export async function sendEmail(userId, { to, subject, body }) {
   // step2: refresh access token if needed
   let accessToken = account.access_token;
 
-  if (Date.now() > account.expiry_date) {
+  if (!accessToken || Date.now() > account.expiry_date) {
     accessToken = await getAccessTokenFromRefreshToken(account.refresh_token);
 
     account.access_token = accessToken;
@@ -37,7 +38,7 @@ export async function sendEmail(userId, { to, subject, body }) {
 
   // step4: send via gmail api
 
-  await axios.post(
+  const res = await axios.post(
     "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
     {
       raw: encodedMessage,
@@ -49,5 +50,25 @@ export async function sendEmail(userId, { to, subject, body }) {
     }
   );
 
-  return { success: true };
+  const messageId = res.data.id;
+
+  await SentEmail.findOneAndUpdate(
+    { messageId },
+    {
+      userId,
+      to,
+      subject,
+      sentVia: "coffer",
+      sentAt: new Date(),
+    },
+    {
+      upsert: true,
+      new: true,
+    }
+  );
+
+  return {
+    messageId: res.data.id,
+    threadId: res.data.threadId,
+  };
 }
