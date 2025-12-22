@@ -11,6 +11,16 @@ export default function ComposeModal({ isOpen, onClose, initialData }) {
   });
   const [sending, setSending] = useState(false);
 
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        to: initialData.to || "",
+        subject: initialData.subject || "",
+        body: initialData.body || "",
+      });
+    }
+  }, [initialData]);
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {
@@ -39,16 +49,6 @@ export default function ComposeModal({ isOpen, onClose, initialData }) {
       setSending(false);
     }
   };
-
-  useEffect(() => {
-    if (initialData) {
-      setForm({
-        to: initialData.to || "",
-        subject: initialData.subject || "",
-        body: initialData.body || "",
-      });
-    }
-  }, [initialData]);
 
   return (
     <div className="compose-overlay">
