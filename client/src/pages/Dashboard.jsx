@@ -3,10 +3,13 @@ import "../styles/Dashboard.css";
 import api from "../axios";
 import { showSuccess, showError } from "../utils/toast";
 import ComposeModal from "../components/ComposeModal.jsx";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   const [showCompose, setShowCompose] = useState(false);
   const [state, setState] = useState({
     loading: true,
@@ -109,6 +112,8 @@ export default function Dashboard() {
           >
             View Inbox
           </button>
+
+          <button onClick={() => navigate("/sent")}>Sent Emails</button>
 
           <button
             className="btn-secondary"
