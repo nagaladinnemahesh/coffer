@@ -48,7 +48,7 @@ export default function Sent() {
 
       {messages.map((msg) => (
         <div key={msg.id} className="email-card">
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className="sent-header">
             <p className="email-from">
               <b>To:</b> {msg.to}
             </p>
