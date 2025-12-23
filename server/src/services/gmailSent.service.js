@@ -48,6 +48,14 @@ export async function getSentEmails(userId, pageToken = null, maxResults = 10) {
       }
     );
 
+    const labelIds = detailRes.data.labelIds || [];
+
+    //filtering proper sent emails;
+
+    if (!labelIds.includes("SENT") || labelIds.includes("INBOX")) {
+      continue;
+    }
+
     // const payload = detailRes.data.payload;
     const headers = detailRes.data.payload.headers;
 
