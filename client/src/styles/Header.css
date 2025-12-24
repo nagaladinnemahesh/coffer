@@ -10,15 +10,33 @@
 }
 
 .header-left .logo {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  /* height: 40px; */
+  width: auto;
+  display: block;
+}
+
+
+.logo {
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  color: #fff;
+  text-decoration: none;
 }
+
 
 .header-nav {
   display: flex;
   gap: 24px;
 }
+.header-left a {
+  text-decoration: none;
+  color: inherit;
+}
+
 
 .nav-link {
   color: #cbd5e1;

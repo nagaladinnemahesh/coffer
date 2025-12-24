@@ -16,13 +16,13 @@ export default function Header({ email }) {
 
   return (
     <header className="app-header">
-      {/* Left: Brand */}
       <div className="header-left">
-        {/* <span className="logo"></span> */}
-        <img src="/logo-transparent-svg.svg" alt="Coffer" />
+        {/* <img className="logo" src="/logo-transparent-svg.svg" alt="Coffer" /> */}
+        <NavLink to="/dashboard">
+          <h1 className="logo">COFFER</h1>
+        </NavLink>
       </div>
 
-      {/* Center: Navigation */}
       <nav className="header-nav">
         <NavLink to="/dashboard" className="nav-link">
           Dashboard
@@ -35,7 +35,6 @@ export default function Header({ email }) {
         </NavLink>
       </nav>
 
-      {/* Right: User */}
       <div className="header-right">
         {email && <span className="user-email">{email}</span>}
         <button className="logout-btn" onClick={handleLogout}>

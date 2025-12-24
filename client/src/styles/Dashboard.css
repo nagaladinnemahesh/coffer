@@ -26,6 +26,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
 }
 
 .avatar.placeholder {

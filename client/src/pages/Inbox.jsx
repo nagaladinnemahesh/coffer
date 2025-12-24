@@ -119,7 +119,6 @@ export default function Inbox() {
 
           {renderStatus(msg)}
 
-          {/* AI Analysis (ATTACHED) */}
           {msg.analysisStatus === "completed" && msg.analysis && (
             <div className="analysis-section">
               <div className="analysis-header">🤖 AI Analysis</div>

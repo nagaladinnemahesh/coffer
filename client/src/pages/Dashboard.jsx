@@ -72,11 +72,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Gmail Status */}
       <div className="dashboard-card">
         <div className="dashboard-header">
           {state.picture ? (
-            <img src="/email/avatar" alt="avatar" className="avatar" />
+            <img src={state.picture} alt="avatar" className="avatar" />
           ) : (
             <div className="avatar placeholder"></div>
           )}
@@ -103,7 +102,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Primary Actions */}
       <div className="action-grid">
         <div className="action-card" onClick={() => navigate("/inbox")}>
           <h3>📥 Inbox</h3>
@@ -121,7 +119,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* AI Overview */}
       <div className="dashboard-card muted">
         <h3>🤖 AI Overview</h3>
         <p>• Intent detection</p>
