@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "../styles/dashboard.css";
+import "../styles/Dashboard.css";
 import api from "../axios";
 import { showSuccess, showError } from "../utils/toast";
 import ComposeModal from "../components/ComposeModal.jsx";
