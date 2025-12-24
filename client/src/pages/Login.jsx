@@ -22,7 +22,7 @@ export default function Login() {
       });
 
       localStorage.setItem("token", res.data.token);
-      console.log(res.data.token);
+      // console.log(res.data.token);
       showSuccess("Login Successful");
       navigate("/dashboard");
     } catch (err) {

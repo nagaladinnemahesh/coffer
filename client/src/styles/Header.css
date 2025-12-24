@@ -1,38 +1,75 @@
-.header {
-  height: 58px;
-  padding: 0 24px;
-  background: #111827; /* Slate-900 */
-  border-bottom: 1px solid #1f2937;
-
+.app-header {
+  height: 64px;
+  background: #0f172a;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid #1e293b;
 }
+
+.header-left .logo {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  /* height: 40px; */
+  width: auto;
+  display: block;
+}
+
 
 .logo {
-  margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  color: #c7d2fe; /* Indigo-200 */
-  cursor: pointer;
+  letter-spacing: 0.5px;
+  color: #fff;
+  text-decoration: none;
 }
 
-.logo:hover {
-  color: #e0e7ff;
+
+.header-nav {
+  display: flex;
+  gap: 24px;
+}
+.header-left a {
+  text-decoration: none;
+  color: inherit;
+}
+
+
+.nav-link {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 500;
+  padding-bottom: 4px;
+}
+
+.nav-link.active {
+  color: #ffffff;
+  border-bottom: 2px solid #38bdf8;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #94a3b8;
 }
 
 .logout-btn {
-  background: #1f2937; /* Slate-800 */
-  color: #fca5a5; /* Soft red */
-  border: 1px solid #374151;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #fff;
+  padding: 6px 12px;
   border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .logout-btn:hover {
-  background: #374151;
-  transform: translateY(-1px);
+  background: #1e293b;
 }

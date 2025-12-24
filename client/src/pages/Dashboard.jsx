@@ -9,8 +9,8 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
   const [showCompose, setShowCompose] = useState(false);
+
   const [state, setState] = useState({
     loading: true,
     connected: false,
@@ -47,9 +47,9 @@ export default function Dashboard() {
     return (
       <div className="dashboard-container center">
         <div className="dashboard-card">
-          <h1 className="dashboard-title">No Gmail Connected</h1>
+          <h1 className="dashboard-title">Connect your Gmail</h1>
           <p className="dashboard-subtitle">
-            Connect your Gmail account to analyze and manage emails.
+            Coffer needs Gmail access to analyze and manage emails.
           </p>
 
           <button
@@ -60,7 +60,6 @@ export default function Dashboard() {
                 showError("Session expired. Please login again.");
                 return;
               }
-              showSuccess("Redirecting to Google OAuth");
               window.location.href = `${API_BASE}/email/connect?token=${token}`;
             }}
           >
@@ -76,54 +75,18 @@ export default function Dashboard() {
       <div className="dashboard-card">
         <div className="dashboard-header">
           {state.picture ? (
-            <img src="/email/avatar" alt="avatar" className="avatar" />
+            <img src={state.picture} alt="avatar" className="avatar" />
           ) : (
             <div className="avatar placeholder"></div>
           )}
 
           <div>
-            <h2 className="connected-title">Connected Gmail</h2>
+            <h2 className="connected-title">Gmail Connected</h2>
             <p className="connected-email">{state.email}</p>
           </div>
-        </div>
-
-        <div className="dashboard-actions">
-          <button
-            className="btn-primary"
-            onClick={async () => {
-              try {
-                await api.post("/email/send-oauth", {
-                  to: "maheshnagaladinne21@gmail.com",
-                  subject: "Test from Coffer",
-                  body: "This email was sent using Gmail API",
-                });
-                showSuccess("Email sent successfully");
-              } catch {
-                showError("Failed to send email");
-              }
-            }}
-          >
-            Send Test Email
-          </button>
 
           <button
-            className="btn-secondary"
-            onClick={() => (window.location.href = "/inbox")}
-          >
-            View Inbox
-          </button>
-
-          <button onClick={() => navigate("/sent")}>Sent Emails</button>
-
-          <button
-            className="btn-secondary"
-            onClick={() => setShowCompose(true)}
-          >
-            Compose Email
-          </button>
-
-          <button
-            className="btn-danger"
+            className="btn-danger small"
             onClick={async () => {
               try {
                 await api.post("/email/disconnect");
@@ -134,9 +97,34 @@ export default function Dashboard() {
               }
             }}
           >
-            Disconnect Gmail
+            Disconnect
           </button>
         </div>
+      </div>
+
+      <div className="action-grid">
+        <div className="action-card" onClick={() => navigate("/inbox")}>
+          <h3>📥 Inbox</h3>
+          <p>View analyzed incoming emails</p>
+        </div>
+
+        <div className="action-card" onClick={() => navigate("/sent")}>
+          <h3>📤 Sent</h3>
+          <p>Emails sent via Coffer</p>
+        </div>
+
+        <div className="action-card" onClick={() => setShowCompose(true)}>
+          <h3>✉️ Compose</h3>
+          <p>Write and send emails</p>
+        </div>
+      </div>
+
+      <div className="dashboard-card muted">
+        <h3>🤖 AI Overview</h3>
+        <p>• Intent detection</p>
+        <p>• Urgency classification</p>
+        <p>• Smart reply suggestions</p>
+        <span className="coming-soon">Coming soon</span>
       </div>
 
       <ComposeModal
