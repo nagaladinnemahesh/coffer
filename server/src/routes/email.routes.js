@@ -16,6 +16,8 @@ import {
   analyzeEmailWithGemini,
   generateReplyWithGemini,
 } from "../services/gemini.service.js";
+import { getSentEmails } from "../services/gmailSent.service.js";
+import SentEmail from "../models/SentEmail.model.js";
 
 const router = Router();
 
@@ -123,6 +125,35 @@ router.get("/inbox", requireAuth, async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Failed to fetch inbox" });
+  }
+});
+
+router.get("/sent", requireAuth, async (req, res) => {
+  try {
+    const { pageToken } = req.query;
+
+    const data = await getSentEmails(req.user.id, pageToken);
+
+    //attach coffer badge info
+
+    const sentIds = await SentEmail.find({
+      userId: req.user.id,
+      messageId: { $in: data.messages.map((m) => m.id) },
+    }).select("messageId");
+
+    const sentViaCofferSet = new Set(sentIds.map((s) => s.messageId));
+
+    const messagesWithBadge = data.messages.map((m) => ({
+      ...m,
+      sentViaCoffer: sentViaCofferSet.has(m.id),
+    }));
+    res.json({
+      messages: messagesWithBadge,
+      nextPageToken: data.nextPageToken,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch sent emails" });
   }
 });
 
@@ -240,6 +271,11 @@ router.post("/send-oauth", requireAuth, async (req, res) => {
     const { to, subject, body } = req.body;
 
     await sendEmail(req.user.id, { to, subject, body });
+
+    // await SentEmail.create({
+    //   userId: req.user.id,
+    //   messageId: result.messageId,
+    // });
 
     res.json({ success: true, message: "Email sent via Gmail api" });
   } catch (err) {

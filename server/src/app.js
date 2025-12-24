@@ -36,5 +36,6 @@ app.use("/auth", authRoutes);
 app.use("/email", emailRoutes);
 // app.use("/inbox", emailRoutes);
 app.use("/reply-ai", emailRoutes);
+app.use("/email/sent", emailRoutes);
 
 export default app;

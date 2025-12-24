@@ -107,17 +107,18 @@ export default function Inbox() {
 
       {messages.map((msg) => (
         <div key={msg.id} className="email-card">
-          <p className="email-from">
-            <b>From:</b> {msg.from}
-          </p>
-          <p className="email-subject">
-            <b>Subject:</b> {msg.subject}
-          </p>
+          <div className="email=header">
+            <p className="email-from">
+              <b>From:</b> {msg.from}
+            </p>
+            <p className="email-subject">
+              <b>Subject:</b> {msg.subject}
+            </p>
+          </div>
           <p className="email-snippet">{msg.snippet}</p>
 
           {renderStatus(msg)}
 
-          {/* AI Analysis (ATTACHED) */}
           {msg.analysisStatus === "completed" && msg.analysis && (
             <div className="analysis-section">
               <div className="analysis-header">🤖 AI Analysis</div>
@@ -139,36 +140,36 @@ export default function Inbox() {
                   <b>Suggested Action:</b> {msg.analysis.suggestedAction}
                 </p>
               </div>
+              <button
+                className="reply-ai-button"
+                onClick={async () => {
+                  try {
+                    const res = await api.post("/email/reply-ai", {
+                      email: {
+                        from: msg.from,
+                        subject: msg.subject,
+                        snippet: msg.snippet,
+                      },
+                      analysis: msg.analysis,
+                      userPrompt: "Write a professional reply",
+                    });
+
+                    setComposeData({
+                      to: msg.from,
+                      subject: `Re: ${msg.subject}`,
+                      body: res.data.reply,
+                    });
+
+                    setShowCompose(true);
+                  } catch (err) {
+                    toast.error("Failed to generate reply");
+                  }
+                }}
+              >
+                Reply with Coffer 🤖
+              </button>
             </div>
           )}
-          <button
-            className="reply-ai-button"
-            onClick={async () => {
-              try {
-                const res = await api.post("/email/reply-ai", {
-                  email: {
-                    from: msg.from,
-                    subject: msg.subject,
-                    snippet: msg.snippet,
-                  },
-                  analysis: msg.analysis,
-                  userPrompt: "Write a professional reply",
-                });
-
-                setComposeData({
-                  to: msg.from,
-                  subject: `Re: ${msg.subject}`,
-                  body: res.data.reply,
-                });
-
-                setShowCompose(true);
-              } catch (err) {
-                toast.error("Failed to generate reply");
-              }
-            }}
-          >
-            Reply with Coffer 🤖
-          </button>
         </div>
       ))}
 
