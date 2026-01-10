@@ -1,7 +1,9 @@
 import axios from "axios";
 
+//generate google consent screen URL, redirect user to google
+
 export function getGoogleAuthURL(userId) {
-  const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+  const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth"; //OAuth base URL
 
   const options = {
     client_id: process.env.GOOGLE_CLIENT_ID,
@@ -20,19 +22,22 @@ export function getGoogleAuthURL(userId) {
     ].join(" "),
   };
 
-  const params = new URLSearchParams(options);
+  // this converts options into a proper query string
 
+  const params = new URLSearchParams(options);
   return `${rootUrl}?${params.toString()}`;
 }
 
+// exhanging authorization code for tokens | after redirecting back to coffer
 export async function getTokens({ code }) {
   // google.service.js
   // const REDIRECT_URI = "https://coffer-o8v1.onrender.com/email/oauth/callback";
   const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
-  const url = "https://oauth2.googleapis.com/token";
+  const url = "https://oauth2.googleapis.com/token"; // token endpoint
   console.log("Using redirect_uri: ", process.env.GOOGLE_REDIRECT_URI);
 
+  // sending values to google to get tokens
   const values = {
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
@@ -41,15 +46,18 @@ export async function getTokens({ code }) {
     grant_type: "authorization_code",
   };
 
+  // oauth requires url-encoded body
   const res = await axios.post(url, new URLSearchParams(values), {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
   });
 
+  // returned tokens
   return res.data;
 }
 
+// fetching google user's profile info
 export async function getUserProfile(access_token) {
   const res = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
     headers: {
@@ -60,6 +68,7 @@ export async function getUserProfile(access_token) {
   return res.data;
 }
 
+// gets new access token when old token expires
 export async function getAccessTokenFromRefreshToken(refresh_token) {
   const res = await axios.post("https://oauth2.googleapis.com/token", null, {
     params: {
