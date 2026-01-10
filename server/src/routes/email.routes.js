@@ -11,11 +11,6 @@ import axios from "axios";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
-import EmailAnalysis from "../models/emailAnalysis.model.js";
-import {
-  analyzeEmailWithGemini,
-  generateReplyWithGemini,
-} from "../services/gemini.service.js";
 import { getSentEmails } from "../services/gmailSent.service.js";
 import SentEmail from "../models/SentEmail.model.js";
 
@@ -119,21 +114,7 @@ router.get("/account", requireAuth, async (req, res) => {
   }
 });
 
-// disconnect Gmail
-
-router.post("/disconnect", requireAuth, async (req, res) => {
-  try {
-    await GmailAccount.deleteOne({ user_id: req.user.id });
-    return res.json({ success: true });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: "Failed to disconnect" });
-  }
-});
-
-// Gmail core operations
-
-// fetch inbox
+// inbox
 router.get("/inbox", requireAuth, async (req, res) => {
   console.log(" /email/inbox route HIT");
   // return res.json({ok: true});
@@ -180,96 +161,13 @@ router.get("/sent", requireAuth, async (req, res) => {
   }
 });
 
-// sending email via gmail api
-router.post("/send-oauth", requireAuth, async (req, res) => {
+router.post("/disconnect", requireAuth, async (req, res) => {
   try {
-    const { to, subject, body } = req.body;
-
-    await sendEmail(req.user.id, { to, subject, body });
-
-    // await SentEmail.create({
-    //   userId: req.user.id,
-    //   messageId: result.messageId,
-    // });
-
-    res.json({ success: true, message: "Email sent via Gmail api" });
+    await GmailAccount.deleteOne({ user_id: req.user.id });
+    return res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to send email" });
-  }
-});
-
-// AI Analysis and features
-
-// analyze emails with ai
-router.post("/analyze", requireAuth, async (req, res) => {
-  try {
-    const { messageId } = req.body;
-    const userId = req.user.id;
-
-    if (!messageId) {
-      return res.status(400).json({
-        error: "message Id required",
-      });
-    }
-
-    const account = await GmailAccount.findOne({ user_id: userId });
-
-    if (!account) {
-      return res.status(400).json({
-        error: "No gmail connected",
-      });
-    }
-
-    // fetch email content
-    const emailRes = await axios.get(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${account.access_token}`,
-        },
-      }
-    );
-
-    const snippet = emailRes.data.snippet || "";
-
-    // calling gemini
-    const analysis = await analyzeEmailWithGemini(snippet);
-
-    //save and update analysis
-    await EmailAnalysis.findOneAndUpdate(
-      { userId, messageId },
-      { analysis },
-      { upsert: true }
-    );
-
-    return res.json({ success: true, analysis });
-  } catch (err) {
-    console.error("analyze email error:", err);
-    res.status(500).json({ error: "Fialed to analyze email" });
-  }
-});
-
-// generating ai reply
-router.post("/reply-ai", requireAuth, async (req, res) => {
-  console.log("req body:", req.body);
-  try {
-    const { email, analysis, userPrompt } = req.body;
-
-    if (!email || !analysis) {
-      return res.status(400).json({ error: "Missing email context" });
-    }
-
-    const reply = await generateReplyWithGemini({
-      email,
-      analysis,
-      userPrompt,
-    });
-
-    return res.json({ reply });
-  } catch (err) {
-    console.error("Reply AI error:", err.message);
-    return res.status(500).json({ error: "Failed to generate reply" });
+    console.log(err);
+    return res.status(500).json({ error: "Failed to disconnect" });
   }
 });
 
