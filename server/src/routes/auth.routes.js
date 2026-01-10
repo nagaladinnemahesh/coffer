@@ -1,14 +1,14 @@
-import { Router } from "express";
+import { Router } from "express"; // mini route handler
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 
 const router = Router();
 
-// register user
+// register user, create new user account
 
 router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; // reads data from frontend payload
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
@@ -21,6 +21,7 @@ router.post("/register", async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // creating user in db
   const user = await User.create({
     email,
     password: hashedPassword,
