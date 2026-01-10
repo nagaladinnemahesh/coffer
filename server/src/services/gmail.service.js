@@ -1,8 +1,9 @@
 import axios from "axios";
 import GmailAccount from "../models/GmailAccount.model.js";
 import EmailAnalysis from "../models/emailAnalysis.model.js";
-import { analyzeEmailWithGemini } from "./gemini.service.js";
+// import { analyzeEmailWithGemini } from "./gemini.service.js";
 import { getAccessTokenFromRefreshToken } from "./google.service.js";
+import { submitEmailToCIS } from "./cis.service.js";
 
 export async function getInbox(userId, pageToken = null, maxResults = 10) {
   // console.log(" Inbox API called for user:", userId);
@@ -82,18 +83,35 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
       // backgruound gemini analysis
       // console.log(" Gemini analysis started for:", msg.id);
 
-      analyzeEmailWithGemini(`${subject}\n${snippet}`)
-        .then(async (analysis) => {
-          analysisDoc.analysis = analysis;
-          analysisDoc.status = "completed";
-          await analysisDoc.save();
-          console.log("✅ Gemini analysis completed for:", msg.id);
-        })
-        .catch(async (err) => {
-          analysisDoc.status = "failed";
-          await analysisDoc.save();
-          console.error("❌ Gemini analysis failed for:", msg.id, err);
+      // analyzeEmailWithGemini(`${subject}\n${snippet}`)
+      //   .then(async (analysis) => {
+      //     analysisDoc.analysis = analysis;
+      //     analysisDoc.status = "completed";
+      //     await analysisDoc.save();
+      //     console.log("✅ Gemini analysis completed for:", msg.id);
+      //   })
+      //   .catch(async (err) => {
+      //     analysisDoc.status = "failed";
+      //     await analysisDoc.save();
+      //     console.error("❌ Gemini analysis failed for:", msg.id, err);
+      //   });
+
+      try {
+        const { job_id } = await submitEmailToCIS({
+          subject,
+          snippet,
+          messageId: msg.id,
         });
+
+        analysisDoc.cisJobId = job_id;
+        analysisDoc.status = "pending";
+        await analysisDoc.save();
+        console.log("sent to cis: ", msg.id, job_id);
+      } catch (err) {
+        analysisDoc.status = "failed";
+        await analysisDoc.save();
+        console.error("cis submission failed: ", msg.id, err.message);
+      }
     } else {
       console.log(
         " Existing analysis found:",
@@ -101,6 +119,18 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
         "Status:",
         analysisDoc.status
       );
+    }
+
+    if (analysisDoc.status === "pending" && analysisDoc.cisJobId) {
+      const cisRes = await axios.get(
+        `${process.env.CIS_BASE_URL}/analysis/${analysisDoc.cisJobId}`
+      );
+
+      if (cisRes.data.status === "completed") {
+        analysisDoc.analysis = cisRes.data.result;
+        analysisDoc.status = "completed";
+        await analysisDoc.save();
+      }
     }
 
     result.push({

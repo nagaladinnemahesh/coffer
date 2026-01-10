@@ -27,6 +27,10 @@ const emailAnalysisSchema = new mongoose.Schema(
       summary: String,
       suggestedAction: String,
     },
+    cisJobId: {
+      type: String,
+      index: true,
+    },
   },
 
   { timestamps: true }
