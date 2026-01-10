@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import api from "../axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import React from "react";
 import "../styles/inbox.css";
 import ComposeModal from "../components/ComposeModal";
 
@@ -14,18 +13,19 @@ export default function Inbox() {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showCompose, setShowCompose] = useState(false);
+  const [replyLoadingId, setReplyLoadingId] = useState(null);
   const [composeData, setComposeData] = useState({
     to: "",
     subject: "",
     body: "",
   });
 
+  // fetching inbox
   const loadInbox = (pageToken = null, silent = false, replace = false) => {
     let toastId;
 
     if (!silent) {
       toastId = toast.loading("Fetching emails...");
-      // setLoading(true);
     }
 
     setLoading(true);
@@ -55,6 +55,7 @@ export default function Inbox() {
       });
   };
 
+  // status render
   const renderStatus = (msg) => {
     if (msg.analysisStatus === "pending")
       return <span className="status pending">Analyzing…</span>;
@@ -62,7 +63,11 @@ export default function Inbox() {
     if (msg.analysisStatus === "failed")
       return <span className="status failed">Failed</span>;
 
-    if (msg.analysisStatus === "completed")
+    if (
+      msg.analysisStatus === "completed" &&
+      msg.analysis &&
+      msg.analysis.intent
+    )
       return <span className="status completed">Analyzed</span>;
 
     return null;
@@ -88,6 +93,7 @@ export default function Inbox() {
     return () => clearInterval(interval);
   }, [messages]);
 
+  // render
   return (
     <div className="inbox-container">
       <div className="top-actions">
@@ -107,7 +113,7 @@ export default function Inbox() {
 
       {messages.map((msg) => (
         <div key={msg.id} className="email-card">
-          <div className="email=header">
+          <div className="email-header">
             <p className="email-from">
               <b>From:</b> {msg.from}
             </p>
@@ -115,6 +121,7 @@ export default function Inbox() {
               <b>Subject:</b> {msg.subject}
             </p>
           </div>
+
           <p className="email-snippet">{msg.snippet}</p>
 
           {renderStatus(msg)}
@@ -136,37 +143,100 @@ export default function Inbox() {
                 <p>
                   <b>Summary:</b> {msg.analysis.summary}
                 </p>
-                <p>
-                  <b>Suggested Action:</b> {msg.analysis.suggestedAction}
-                </p>
+
+                <div>
+                  <b>Suggested Actions:</b>
+                  <ul>
+                    {msg.analysis.suggested_actions?.map((a, i) => (
+                      <li key={i}>{a}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
+
               <button
                 className="reply-ai-button"
+                disabled={replyLoadingId === msg.id}
                 onClick={async () => {
+                  if (replyLoadingId === msg.id) return;
+
+                  let pollInterval;
+                  let toastId;
+
                   try {
-                    const res = await api.post("/email/reply-ai", {
+                    setReplyLoadingId(msg.id);
+
+                    // 1️ Create reply job
+                    const res = await api.post("/reply/draft", {
                       email: {
+                        id: msg.id,
                         from: msg.from,
                         subject: msg.subject,
-                        snippet: msg.snippet,
+                        body: msg.snippet,
                       },
                       analysis: msg.analysis,
-                      userPrompt: "Write a professional reply",
+                      userPrompt: "reply_to_email",
                     });
 
-                    setComposeData({
-                      to: msg.from,
-                      subject: `Re: ${msg.subject}`,
-                      body: res.data.reply,
-                    });
+                    const jobId = res.data.jobId;
 
-                    setShowCompose(true);
+                    // HARD STOP if jobId missing
+                    if (!jobId) {
+                      toast.error("Failed to start reply job");
+                      setReplyLoadingId(null);
+                      return;
+                    }
+
+                    toastId = toast.loading("Generating reply...");
+
+                    // 2️ Poll for result
+                    pollInterval = setInterval(async () => {
+                      try {
+                        const jobRes = await api.get(`/reply/draft/${jobId}`);
+
+                        if (jobRes.data.status === "completed") {
+                          clearInterval(pollInterval);
+                          setReplyLoadingId(null);
+
+                          setComposeData({
+                            to: msg.from,
+                            subject: `Re: ${msg.subject}`,
+                            body: jobRes.data.result.reply,
+                          });
+
+                          setShowCompose(true);
+                          toast.success("Reply ready ✨", { id: toastId });
+                        }
+
+                        if (jobRes.data.status === "failed") {
+                          clearInterval(pollInterval);
+                          setReplyLoadingId(null);
+                          toast.error("Reply generation failed", {
+                            id: toastId,
+                          });
+                        }
+                      } catch (err) {
+                        clearInterval(pollInterval);
+                        setReplyLoadingId(null);
+                        toast.error("Reply job failed", { id: toastId });
+                      }
+                    }, 1500);
                   } catch (err) {
+                    if (pollInterval) clearInterval(pollInterval);
+                    setReplyLoadingId(null);
+
+                    console.error(
+                      "Reply AI error:",
+                      err?.response?.data || err.message
+                    );
+
                     toast.error("Failed to generate reply");
                   }
                 }}
               >
-                Reply with Coffer 🤖
+                {replyLoadingId === msg.id
+                  ? "Generating…"
+                  : "Reply with Coffer 🤖"}
               </button>
             </div>
           )}
