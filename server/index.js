@@ -7,20 +7,6 @@ async function startMongoDBAndRunServer() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("MONGODB Connected");
 
-    // async function createTestUser() {
-    //   const exists = await User.findById("test-user-1");
-    //   if (!exists) {
-    //     await User.create({
-    //       _id: "test-user-1",
-    //       name: "Test User",
-    //       email: "test@gmail.com",
-    //     });
-    //     console.log("Test user created");
-    //   }
-    // }
-
-    // await createTestUser();
-
     const PORT = process.env.PORT || 3000;
 
     app.listen(PORT, () => {
