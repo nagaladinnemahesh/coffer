@@ -68,7 +68,8 @@ export default function Inbox() {
       msg.analysis &&
       msg.analysis.intent
     )
-      return <span className="status completed">Analyzed</span>;
+      console.log("ai analysis", msg.analysis);
+    return <span className="status completed">Analyzed</span>;
 
     return null;
   };
@@ -144,14 +145,12 @@ export default function Inbox() {
                   <b>Summary:</b> {msg.analysis.summary}
                 </p>
 
-                <div>
-                  <b>Suggested Actions:</b>
-                  <ul>
-                    {msg.analysis.suggested_actions?.map((a, i) => (
-                      <li key={i}>{a}</li>
-                    ))}
-                  </ul>
-                </div>
+                <p>
+                  <b>Suggested Actions:</b>{" "}
+                  <span className="suggested-action">
+                    {msg.analysis.suggested_action}
+                  </span>
+                </p>
               </div>
 
               <button

@@ -25,7 +25,7 @@ const emailAnalysisSchema = new mongoose.Schema(
         enum: ["low", "medium", "high"],
       },
       summary: String,
-      suggestedAction: String,
+      suggested_action: String,
     },
     cisJobId: {
       type: String,
