@@ -147,3 +147,10 @@
   border-radius: 12px;
   font-weight: 500;
 }
+
+.suggested-action {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
