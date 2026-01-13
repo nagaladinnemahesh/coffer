@@ -1,43 +1,61 @@
 # Coffer – AI-Powered Email Intelligence Platform
 
-Coffer is a smart email assistant that connects securely with Gmail to **analyze incoming emails using AI**, identify intent and urgency, and help users **respond faster with AI-generated replies** — all from a clean web dashboard.
+Coffer is a smart email productivity platform that connects securely with Gmail to **analyze incoming emails using AI**, identify intent and urgency, and help users **respond faster with AI-generated replies** — all from a clean web dashboard.
+
+From **v1.3.0**, Coffer uses a **dedicated AI microservice (CIS – Content Intelligence Service)** to handle all intelligence workflows independently.
 
 ---
 
-## 🚀 Features (v1.2.0)
+## 🚀 Features (v1.3.0)
 
 ### 🔐 Secure Gmail Integration
 - Google OAuth 2.0 authentication
-- Read-only inbox access + send emails via Gmail API
-- Secure token storage and refresh handling
+- Secure Gmail Inbox access (read-only) and email sending via Gmail API
+- Access token refresh handling with no manual re-login
 
 ### 📥 Smart Inbox
-- Fetches only Inbox emails (filters out Sent, Spam, etc.)
+- Fetches **Inbox-only emails** (filters out Sent, Spam, Promotions)
 - Background AI analysis for each email:
-  - **Intent** (e.g., job offer, meeting, promotion)
+  - **Intent** (job offer, payment follow-up, meeting, promotion, etc.)
   - **Urgency** (low / medium / high)
   - **Summary**
   - **Suggested action**
-- Live status updates:
-  - Analyzing → Analyzed (no manual refresh needed)
+- Progressive UI updates:
+  - Analyzing → Analyzed (no page refresh required)
 
 ### 🤖 AI Reply with Coffer
 - One-click **“Reply with Coffer 🤖”**
-- Uses email context + AI analysis to generate a professional reply
+- Uses:
+  - Original email context
+  - AI analysis results
+  - Optional user instruction
+- Generates a professional reply
 - Opens in a compose modal (fully editable)
-- Sends reply via Gmail API
+- Sends email via Gmail API
 
 ### ✉️ Sent Emails
-- Separate Sent view
+- Separate Sent Emails view
 - Emails sent via Coffer are marked with:
-  > **“Sent with Coffer 🤖”**
-- Avoids mixing inbox and sent messages
+  **“Sent with Coffer 🤖”**
+- Prevents mixing Inbox and Sent messages
+
+### 🧠 Content Intelligence Service (CIS) – NEW
+- Dedicated AI microservice built with **FastAPI + Python**
+- Handles:
+  - Email intent classification
+  - Urgency detection
+  - Summary generation
+  - AI reply drafting
+- Job-based asynchronous architecture:
+  - `pending → completed → failed`
+- Stores AI results in MongoDB for reuse
+- Enables AI evolution without redeploying Coffer
 
 ### 🧑 User Experience
-- Clean dashboard with Gmail account status
+- Clean command-center style dashboard
 - Gmail profile avatar support
 - Compose email modal
-- Secure logout and disconnect Gmail flow
+- Secure logout and Gmail disconnect flow
 
 ---
 
@@ -47,9 +65,9 @@ Coffer is a smart email assistant that connects securely with Gmail to **analyze
 - React (Vite)
 - React Router
 - Axios
-- CSS (custom, no UI libraries)
+- Custom CSS (no UI libraries)
 
-### Backend
+### Backend (Coffer)
 - Node.js
 - Express.js
 - MongoDB + Mongoose
@@ -57,12 +75,16 @@ Coffer is a smart email assistant that connects securely with Gmail to **analyze
 - Google OAuth 2.0
 - Gmail API
 
-### AI
-- Google Gemini API
-- Intent analysis & reply generation
+### AI Microservice (CIS)
+- Python
+- FastAPI
+- MongoDB
+- Google Gemini AI
+- Async job-based processing
 
 ### Deployment
-- Backend: Render
+- Coffer Backend: Render
+- CIS (AI Service): Render
 - Frontend: Vercel
 - Database: MongoDB Atlas
 
@@ -72,13 +94,14 @@ Coffer is a smart email assistant that connects securely with Gmail to **analyze
 
 1. User logs in and connects Gmail via OAuth
 2. Inbox emails are fetched from Gmail API
-3. Each email is analyzed asynchronously using Gemini AI
-4. Analysis results are stored and reused (no reprocessing)
-5. User can:
+3. Each email is sent to **CIS** for asynchronous AI analysis
+4. CIS processes content using Gemini AI and stores results
+5. UI polls and updates analysis status progressively
+6. User can:
    - View insights
    - Generate AI replies
    - Send emails via Gmail
-6. Emails sent via Coffer are tracked and labeled
+7. Emails sent via Coffer are tracked and labeled
 
 ---
 
@@ -86,28 +109,30 @@ Coffer is a smart email assistant that connects securely with Gmail to **analyze
 
 - All API routes are JWT-protected
 - OAuth state validation prevents CSRF
-- Tokens are refreshed securely
+- Access tokens are refreshed securely
 - No Gmail passwords are stored
+- AI logic is isolated from authentication and user data
 
 ---
 
 ## 📦 Versioning
 
 - **v1.0** – Gmail OAuth + basic inbox
-- **v1.1** – AI analysis + background processing
+- **v1.1** – Background AI analysis and persistence
 - **v1.2** – AI replies, Sent tracking, UI polish
+- **v1.3** – Dedicated AI microservice (CIS), async jobs, architecture decoupling
 
 ---
 
 ## 🔮 Planned Improvements
 
-- AI dashboard insights (daily summary, priorities)
+- AI dashboard insights (daily summaries, priorities)
 - Custom reply prompts
 - Thread-level analysis
-- Labels & smart filters
-- Caching and performance optimizations
-- Real time Email ingestion using Gmail Push Notifications(`users.watch`)
-  
+- Smart labels & filters
+- Performance caching
+- Real-time email ingestion using Gmail Push Notifications (`users.watch`)
+- Queue-based processing (Redis / PubSub)
 
 ---
 
@@ -115,4 +140,4 @@ Coffer is a smart email assistant that connects securely with Gmail to **analyze
 
 **Mahesh Nagaladinne**  
 Backend / Full Stack Developer  
-Focused on scalable backend systems, cloud, and AI-integrated applications.
+Focused on scalable backend systems, cloud architecture, and production-grade AI integrations.
