@@ -161,6 +161,19 @@ router.get("/sent", requireAuth, async (req, res) => {
   }
 });
 
+router.post("/send-oauth", requireAuth, async (req, res) => {
+  try {
+    const { to, subject, body } = req.body;
+
+    await sendEmail(req.user.id, { to, subject, body });
+
+    res.json({ success: true, message: "Email sent via Gmail api" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email" });
+  }
+});
+
 router.post("/disconnect", requireAuth, async (req, res) => {
   try {
     await GmailAccount.deleteOne({ user_id: req.user.id });
