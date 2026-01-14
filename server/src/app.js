@@ -34,6 +34,15 @@ app.use(
 // app.options("*", cors());
 // app.use(express.json());
 
+// health check
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "coffer",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 //routes
 
 app.use("/auth", authRoutes);
