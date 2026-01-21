@@ -19,8 +19,22 @@ export async function submitEmailToCIS({ subject, snippet, messageId }) {
 }
 
 export async function getCISAnalysis(jobId) {
-  const res = await axios.get(`${CIS_BASE_URL}/analysis/${jobId}`);
-  return res.data;
+  try {
+    const res = await axios.get(`${CIS_BASE_URL}/analysis/${jobId}`);
+    return res.data; // { job_id, status, result }
+  } catch (err) {
+    // ✅ NORMAL async case — job not created yet
+    if (err.response?.status === 404) {
+      return {
+        job_id: jobId,
+        status: "pending",
+        result: null,
+      };
+    }
+
+    // ❌ Real failure
+    throw err;
+  }
 }
 
 export async function createReplyDraft(payload) {

@@ -4,6 +4,7 @@ import EmailAnalysis from "../models/emailAnalysis.model.js";
 // import { analyzeEmailWithGemini } from "./gemini.service.js";
 import { getAccessTokenFromRefreshToken } from "./google.service.js";
 import { submitEmailToCIS } from "./cis.service.js";
+import { getCISAnalysis } from "./cis.service.js";
 
 export async function getInbox(userId, pageToken = null, maxResults = 10) {
   // console.log(" Inbox API called for user:", userId);
@@ -34,7 +35,7 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
         pageToken: pageToken || undefined,
         labelIds: ["INBOX"],
       },
-    }
+    },
   );
 
   // console.log("Raw Gmail list response:", listRes.data);
@@ -56,7 +57,7 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
       {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: { format: "metadata", metadataHeaders: ["Subject", "From"] },
-      }
+      },
     );
 
     const payload = detailRes.data.payload;
@@ -77,7 +78,7 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
       analysisDoc = await EmailAnalysis.findOneAndUpdate(
         { userId, messageId: msg.id },
         { $setOnInsert: { status: "pending" } },
-        { new: true, upsert: true }
+        { new: true, upsert: true },
       );
 
       // backgruound gemini analysis
@@ -117,18 +118,26 @@ export async function getInbox(userId, pageToken = null, maxResults = 10) {
         " Existing analysis found:",
         msg.id,
         "Status:",
-        analysisDoc.status
+        analysisDoc.status,
       );
     }
 
     if (analysisDoc.status === "pending" && analysisDoc.cisJobId) {
-      const cisRes = await axios.get(
-        `${process.env.CIS_BASE_URL}/analysis/${analysisDoc.cisJobId}`
-      );
+      let cisRes;
+      try {
+        cisRes = await getCISAnalysis(analysisDoc.cisJobId);
+      } catch (err) {
+        console.error("cis fetch failed:", err.message);
+        cisRes = { status: "failed", result: null };
+      }
 
-      if (cisRes.data.status === "completed") {
-        analysisDoc.analysis = cisRes.data.result;
+      if (!cisRes || !cisRes.status) {
+      } else if (cisRes.status === "completed") {
+        analysisDoc.analysis = cisRes.result;
         analysisDoc.status = "completed";
+        await analysisDoc.save();
+      } else if (cisRes.status === "failed") {
+        analysisDoc.status = "failed";
         await analysisDoc.save();
       }
     }
