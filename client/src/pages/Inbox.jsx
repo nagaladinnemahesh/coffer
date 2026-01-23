@@ -226,7 +226,7 @@ export default function Inbox() {
 
                     console.error(
                       "Reply AI error:",
-                      err?.response?.data || err.message
+                      err?.response?.data || err.message,
                     );
 
                     toast.error("Failed to generate reply");

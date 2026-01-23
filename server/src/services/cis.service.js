@@ -3,7 +3,7 @@ import axios from "axios";
 const CIS_BASE_URL = process.env.CIS_BASE_URL;
 
 export async function submitEmailToCIS({ subject, snippet, messageId }) {
-  const res = await axios.post(`${CIS_BASE_URL}/analyze`, {
+  const res = await axios.post(`${CIS_BASE_URL}/analyze/`, {
     content_type: "email",
     content: {
       title: subject,
