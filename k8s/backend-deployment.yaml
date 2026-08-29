@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: coffer-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: coffer-backend
+
+  template:
+    metadata:
+      labels:
+        app: coffer-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend:latest
+          ports:
+            - containerPort: 3000
+
+          envFrom:
+            - secretRef:
+               name: coffer-backend-secret
