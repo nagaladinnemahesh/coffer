@@ -3,6 +3,8 @@ kind: Service
 
 metadata:
   name: coffer-backend
+  annotations:
+    cloud.google.com/backend-config: '{"default": "coffer-backend-config"}'
 
 spec:
   selector:
