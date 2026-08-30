@@ -3,6 +3,9 @@ kind: Ingress
 
 metadata:
   name: coffer-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "coffer-ingress-ip"
+    networking.gke.io/managed-certificates: "coffer-certificate"
 
 spec:
   defaultBackend:

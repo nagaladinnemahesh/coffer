@@ -14,6 +14,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://coffer-eight.vercel.app",
   "http://127.0.0.1:5173",
+  "http://136.69.31.235",
+  "https://coffer.136.69.31.235.nip.io",
 ];
 
 app.use(
