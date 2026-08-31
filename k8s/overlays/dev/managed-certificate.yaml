@@ -1,0 +1,9 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+
+metadata:
+  name: coffer-dev-certificate
+
+spec:
+  domains:
+    - dev.coffer.130.211.7.82.nip.io

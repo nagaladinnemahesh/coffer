@@ -16,6 +16,7 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://136.69.31.235",
   "https://coffer.136.69.31.235.nip.io",
+  "https://dev.coffer.130.211.7.82.nip.io",
 ];
 
 app.use(
