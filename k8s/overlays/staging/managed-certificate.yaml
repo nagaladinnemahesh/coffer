@@ -2,8 +2,8 @@ apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 
 metadata:
-  name: coffer-certificate
+  name: coffer-staging-certificate
 
 spec:
   domains:
-    - coffer.136.69.31.235.nip.io
+    - staging.coffer.34.8.23.46.nip.io
