@@ -8,7 +8,7 @@ export default function Header({ email }) {
     try {
       localStorage.removeItem("token");
       navigate("/login");
-    } catch (err) {
+    } catch {
       console.error("Logout failed");
     }
   };

@@ -25,7 +25,7 @@ export default function Login() {
       // console.log(res.data.token);
       showSuccess("Login Successful");
       navigate("/dashboard");
-    } catch (err) {
+    } catch {
       // alert("Invalid credentials");
       showError("Invalid Email or Password");
     } finally {

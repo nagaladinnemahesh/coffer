@@ -67,9 +67,10 @@ export default function Inbox() {
       msg.analysisStatus === "completed" &&
       msg.analysis &&
       msg.analysis.intent
-    )
+    ) {
       console.log("ai analysis", msg.analysis);
-    return <span className="status completed">Analyzed</span>;
+      return <span className="status completed">Analyzed</span>;
+    }
 
     return null;
   };
@@ -214,7 +215,7 @@ export default function Inbox() {
                             id: toastId,
                           });
                         }
-                      } catch (err) {
+                      } catch {
                         clearInterval(pollInterval);
                         setReplyLoadingId(null);
                         toast.error("Reply job failed", { id: toastId });

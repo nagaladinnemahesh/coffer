@@ -20,7 +20,7 @@ export default function Register() {
       });
       showSuccess("Account created successfully");
       navigate("/login");
-    } catch (err) {
+    } catch {
       showError("User already exists");
     } finally {
       setLoading(false);
