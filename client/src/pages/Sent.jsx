@@ -8,12 +8,9 @@ export default function Sent() {
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState([]);
-  const [nextPageToken, setNextPageToken] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const loadSent = (pageToken = null) => {
     const toastId = toast.loading("Fetching sent emails...");
-    setLoading(true);
 
     api
       .get("/email/sent", { params: { pageToken } })
@@ -24,14 +21,12 @@ export default function Sent() {
           return Array.from(map.values());
         });
 
-        setNextPageToken(res.data.nextPageToken || null);
         toast.success("Sent emails loaded", { id: toastId });
       })
       .catch((err) => {
         console.error(err);
         toast.error("Failed to load sent emails", { id: toastId });
       })
-      .finally(() => setLoading(false));
   };
 
   useEffect(() => {

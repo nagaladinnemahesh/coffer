@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: coffer-dev-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "coffer-dev-ingress-ip"
+    networking.gke.io/managed-certificates: "coffer-dev-certificate"
+
+spec:
+  rules:
+    - host: dev.coffer.130.211.7.82.nip.io
+      http:
+        paths:
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-backend
+                port:
+                  number: 3000
+
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-backend
+                port:
+                  number: 3000
+
+          - path: /email
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-backend
+                port:
+                  number: 3000
+
+          - path: /reply-ai
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-backend
+                port:
+                  number: 3000
+
+          - path: /reply
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-backend
+                port:
+                  number: 3000
+
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: coffer-frontend
+                port:
+                  number: 80

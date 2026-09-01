@@ -5,7 +5,7 @@ import { showSuccess, showError } from "../utils/toast";
 import ComposeModal from "../components/ComposeModal.jsx";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = window.__COFFER_CONFIG__.API_BASE_URL;
 
 export default function Dashboard() {
   const navigate = useNavigate();

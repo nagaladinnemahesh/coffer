@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+  build-images:
+    name: Build and Push Images
+    needs:
+      - frontend
+      - backend
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/760898156816/locations/global/workloadIdentityPools/github/providers/github-provider
+          service_account: coffer-cicd@coffer-506809.iam.gserviceaccount.com
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
+
+      - name: Build backend image
+        run: |
+          docker build \
+            -t asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend:${GITHUB_SHA} \
+            ./server
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            -t asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend:${GITHUB_SHA} \
+            ./client
+
+      - name: Push backend image
+        run: |
+          docker push \
+            asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend:${GITHUB_SHA}
+
+      - name: Push frontend image
+        run: |
+          docker push \
+            asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend:${GITHUB_SHA}
