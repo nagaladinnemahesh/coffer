@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -15,6 +19,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/760898156816/locations/global/workloadIdentityPools/github/providers/github-provider
+          service_account: coffer-cicd@coffer-506809.iam.gserviceaccount.com
+
+      - name: Verify Google Cloud authentication
+        run: gcloud auth list
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
