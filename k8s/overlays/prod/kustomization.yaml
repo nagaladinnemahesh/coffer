@@ -8,9 +8,5 @@ resources:
   - ingress.yaml
   - managed-certificate.yaml
 
-images:
-  - name: asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend
-    newTag: prod
-
-  - name: asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend
-    newTag: prod
+patches:
+  - path: frontend-config.yaml

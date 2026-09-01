@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+      image_tag:
+        description: "Git SHA image tag to deploy"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/760898156816/locations/global/workloadIdentityPools/github/providers/github-provider
+          service_account: coffer-cicd@coffer-506809.iam.gserviceaccount.com
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: coffer-gke
+          location: asia-south1
+          project_id: coffer-506809
+
+      - name: Verify images exist
+        run: |
+          gcloud artifacts docker images describe \
+            asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend:${{ inputs.image_tag }}
+
+          gcloud artifacts docker images describe \
+            asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend:${{ inputs.image_tag }}
+
+      - name: Deploy
+        run: |
+          kubectl apply -k k8s/overlays/${{ inputs.environment }}
+
+          kubectl -n ${{ inputs.environment }} set image deployment/coffer-backend \
+            backend=asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/backend:${{ inputs.image_tag }}
+
+          kubectl -n ${{ inputs.environment }} set image deployment/coffer-frontend \
+            frontend=asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend:${{ inputs.image_tag }}
+
+      - name: Wait for rollout
+        run: |
+          kubectl -n ${{ inputs.environment }} rollout status \
+            deployment/coffer-backend \
+            --timeout=5m
+
+          kubectl -n ${{ inputs.environment }} rollout status \
+            deployment/coffer-frontend \
+            --timeout=5m

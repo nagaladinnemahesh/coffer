@@ -21,5 +21,9 @@ spec:
         - name: frontend
           image: asia-south1-docker.pkg.dev/coffer-506809/coffer-docker/frontend:latest
 
+          env:
+            - name: API_BASE_URL
+              value: ""
+
           ports:
             - containerPort: 80
