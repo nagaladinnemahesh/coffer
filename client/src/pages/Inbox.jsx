@@ -82,7 +82,7 @@ export default function Inbox() {
     loadInbox();
   }, []);
 
-  // Auto refresh while pending
+  // Auto refresh while pendin1g analysis exists
   useEffect(() => {
     const hasPending = messages.some((m) => m.analysisStatus === "pending");
 
