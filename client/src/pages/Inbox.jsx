@@ -166,7 +166,7 @@ export default function Inbox() {
                   try {
                     setReplyLoadingId(msg.id);
 
-                    // 1️ Create reply job
+                    // 1️ Create reply job, a new line
                     const res = await api.post("/reply/draft", {
                       email: {
                         id: msg.id,
